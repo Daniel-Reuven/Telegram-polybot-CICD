@@ -43,7 +43,7 @@ if __name__ == '__main__':
     sqs = boto3.resource('sqs', region_name=config.get('aws_region'))
     queue = sqs.get_queue_by_name(QueueName=config.get('bot_to_worker_queue_name'))
     s3_bucket_name = config.get('bucket_name')
-    print(s3_bucket_name)
+    # print(s3_bucket_name)
     cwd = os.getcwd()
     path = f"{cwd}/ytdlAppData"
     # Check whether the specified path exists or not

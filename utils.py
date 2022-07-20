@@ -102,7 +102,7 @@ def upload_file(key_filename, bucket, object_name=None):
     if object_name is None:
         object_name = s3_prefix
     try:
-        response = s3_client.upload_file(s3_prefix, bucket, object_name)
+        response = s3_client.upload_file(key_filename, bucket, s3_prefix)
     except ClientError as e:
         logger.error(e)
         return False
