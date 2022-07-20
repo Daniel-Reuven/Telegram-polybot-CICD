@@ -18,7 +18,7 @@ def search_download_youtube_video(video_name, num_results, s3_bucket_name):
     :return: list of paths to your downloaded video files
     """
     # Parameters for youtube_dl use
-    ydl = {'noplaylist': 'True', 'format': 'bestvideo[ext=mp4]+bestaudio[ext=mp4]/mp4', 'outtmpl': '/./ytdlAppData/%(id)s.%(ext)s'}
+    ydl = {'noplaylist': 'True', 'format': 'bestvideo[ext=mp4]+bestaudio[ext=mp4]/mp4', 'outtmpl': '%(id)s.%(ext)s'}
     # Try to download and return list of video/s or error msg
     with YoutubeDL(ydl) as ydl:
         ydl.cache.remove()
@@ -29,6 +29,7 @@ def search_download_youtube_video(video_name, num_results, s3_bucket_name):
             #     return "Error, selected track/s are above predefined duration limit"
             # if video['duration'] <= 0.1:
             #     return "Error, selected track/s are below predefined duration limit"
+            localprefix = video['id'] + '.mp4'
             prefix = 'ytdlAppData/' + video['id'] + '.mp4'
             # print(prefix)
             # check aws s3 bucket for file, then locally and act accordingly,prefix != ydl.prepare_filename(video)
@@ -36,10 +37,10 @@ def search_download_youtube_video(video_name, num_results, s3_bucket_name):
                 if not (os.path.isfile(ydl.prepare_filename(video))):
                     video_url = video['webpage_url']
                     ydl.extract_info(video_url, download=True)
-                    upload_file(prefix, s3_bucket_name)
+                    upload_file(localprefix, s3_bucket_name)
                     os.remove(ydl.prepare_filename(video))
                 else:
-                    upload_file(prefix, s3_bucket_name)
+                    upload_file(localprefix, s3_bucket_name)
                     os.remove(ydl.prepare_filename(video))
             else:
                 if os.path.isfile(ydl.prepare_filename(video)):
