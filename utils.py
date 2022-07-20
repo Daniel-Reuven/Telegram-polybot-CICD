@@ -31,7 +31,7 @@ def search_download_youtube_video(video_name, num_results, s3_bucket_name):
             #     return "Error, selected track/s are below predefined duration limit"
             localprefix = video['id'] + '.mp4'
             prefix = 'ytdlAppData/' + video['id'] + '.mp4'
-            # print(prefix)
+            print(s3_bucket_name)
             # check aws s3 bucket for file, then locally and act accordingly,prefix != ydl.prepare_filename(video)
             if not (check_s3_file(prefix, s3_bucket_name)):
                 if not (os.path.isfile(ydl.prepare_filename(video))):
