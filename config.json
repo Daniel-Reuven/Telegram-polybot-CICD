@@ -1,0 +1,5 @@
+{
+  "aws_region": "region-id",
+  "bot_to_worker_queue_name": "queue-name",
+  "autoscaling_group_name": "asg-name"
+}
