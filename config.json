@@ -1,5 +1,5 @@
 {
-  "aws_region": "region-id",
-  "bot_to_worker_queue_name": "queue-name",
+  "aws_region": "eu-central-1",
+  "bot_to_worker_queue_name": "daniel-reuven-aws-ex1-polybot-queue",
   "autoscaling_group_name": "asg-name"
 }
