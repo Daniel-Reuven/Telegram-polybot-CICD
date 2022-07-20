@@ -1,5 +1,7 @@
 {
   "aws_region": "eu-central-1",
   "bot_to_worker_queue_name": "daniel-reuven-aws-ex1-polybot-queue",
-  "autoscaling_group_name": "asg-name"
+  "autoscaling_group_name": "asg-name",
+  "cloudwatch_namespace": "cloudwatch-namespace",
+  "bucket_name": "daniel-reuven-aws-ex1-polybot-bucket"
 }

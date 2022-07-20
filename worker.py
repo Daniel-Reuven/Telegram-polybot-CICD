@@ -7,9 +7,7 @@ from utils import search_download_youtube_video
 
 
 def process_msg(msg):
-    search_download_youtube_video(msg)
-
-    # TODO upload the downloaded video to your S3 bucket
+    search_download_youtube_video(msg, 1, s3_bucket_name)
 
 
 def main():
@@ -24,7 +22,7 @@ def main():
                 logger.info(f'processing message {msg}')
                 process_msg(msg.body)
 
-                # delete message from the queue after is was handled
+                # delete message from the queue after it was handled
                 response = queue.delete_messages(Entries=[{
                     'Id': msg.message_id,
                     'ReceiptHandle': msg.receipt_handle
@@ -43,5 +41,5 @@ if __name__ == '__main__':
 
     sqs = boto3.resource('sqs', region_name=config.get('aws_region'))
     queue = sqs.get_queue_by_name(QueueName=config.get('bot_to_worker_queue_name'))
-
+    s3_bucket_name = config.get('bot_to_worker_queue_name')
     main()
