@@ -2,6 +2,7 @@ import json
 import time
 import boto3
 import botocore
+import os
 from loguru import logger
 from utils import search_download_youtube_video
 
@@ -42,4 +43,15 @@ if __name__ == '__main__':
     sqs = boto3.resource('sqs', region_name=config.get('aws_region'))
     queue = sqs.get_queue_by_name(QueueName=config.get('bot_to_worker_queue_name'))
     s3_bucket_name = config.get('bot_to_worker_queue_name')
+
+    cwd = os.getcwd()
+    path = f"{cwd}/ytdlAppData"
+    # Check whether the specified path exists or not
+    isExist = os.path.exists(path)
+
+    if not isExist:
+        # Create a new directory because it does not exist
+        os.makedirs(path)
+        print("The new directory is created!")
+
     main()

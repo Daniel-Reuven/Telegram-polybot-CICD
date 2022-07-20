@@ -52,10 +52,10 @@ class QuoteBot(Bot):
 class YoutubeObjectDetectBot(Bot):
     def __init__(self, token):
         super().__init__(token)
-        threading.Thread(
-            target=calc_backlog_per_instance,
-            args=(workers_queue, asg, config.get("autoscaling_group_name"))
-        ).start()
+        # threading.Thread(
+        #     target=calc_backlog_per_instance,
+        #     args=(workers_queue, asg, config.get("autoscaling_group_name"))
+        # ).start()
 
     def _message_handler(self, update, context):
         try:
