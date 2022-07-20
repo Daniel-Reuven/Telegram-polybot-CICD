@@ -31,7 +31,7 @@ def search_download_youtube_video(video_name, num_results, s3_bucket_name):
             #     return "Error, selected track/s are below predefined duration limit"
             localprefix = video['id'] + '.mp4'
             prefix = 'ytdlAppData/' + video['id'] + '.mp4'
-            print(s3_bucket_name)
+            # print(s3_bucket_name)
             # check aws s3 bucket for file, then locally and act accordingly,prefix != ydl.prepare_filename(video)
             if not (check_s3_file(prefix, s3_bucket_name)):
                 if not (os.path.isfile(ydl.prepare_filename(video))):
@@ -78,9 +78,10 @@ def calc_backlog_per_instance(sqs_queue_client, asg_client, asg_group_name):
 
 
 def check_s3_file(key_filename, s3_bucket_name):
+    s3_prefix = 'ytdlAppData/' + key_filename
     s3 = boto3.resource('s3')
     try:
-        s3.Object(s3_bucket_name, key_filename).load()
+        s3.Object(s3_bucket_name, s3_prefix).load()
     except botocore.exceptions.ClientError as e:
         if e.response['Error']['Code'] == "404":
             # The object does not exist.
@@ -94,13 +95,14 @@ def check_s3_file(key_filename, s3_bucket_name):
 
 
 def upload_file(key_filename, bucket, object_name=None):
+    s3_prefix = 'ytdlAppData/' + key_filename
     # Upload the file
     s3_client = boto3.client('s3')
     # If S3 object_name was not specified, use key_filename
     if object_name is None:
-        object_name = key_filename
+        object_name = s3_prefix
     try:
-        response = s3_client.upload_file(key_filename, bucket, object_name)
+        response = s3_client.upload_file(s3_prefix, bucket, object_name)
     except ClientError as e:
         logger.error(e)
         return False
@@ -108,13 +110,14 @@ def upload_file(key_filename, bucket, object_name=None):
 
 
 def download_file(key_filename, bucket, object_name=None):
+    s3_prefix = 'ytdlAppData/' + key_filename
     # Upload the file
     s3_client = boto3.client('s3')
     # If S3 object_name was not specified, use key_filename
     if object_name is None:
-        object_name = key_filename
+        object_name = s3_prefix
     try:
-        response = s3_client.download_file(bucket, object_name, key_filename)
+        response = s3_client.download_file(bucket, object_name, s3_prefix)
     except ClientError as e:
         logger.error(e)
         return False
