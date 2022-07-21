@@ -16,20 +16,20 @@ def search_download_youtube_video(video_name, num_results=1):
     return [ydl.prepare_filename(video) for video in videos]
 
 
-def calc_backoff_per_instance(sqs_queue_client, asg_client, asg_group_name):
+def calc_backlog_per_instance(sqs_queue_client, asg_client, asg_group_name):
     while True:
         msgs_in_queue = int(sqs_queue_client.attributes.get('ApproximateNumberOfMessages'))
         asg_size = asg_client.describe_auto_scaling_groups(AutoScalingGroupNames=[asg_group_name])['AutoScalingGroups'][0]['DesiredCapacity']
 
         if msgs_in_queue == 0:
-            backoff_per_instance = 0
+            backlog_per_instance = 0
         elif asg_size == 0:
-            backoff_per_instance = 99
+            backlog_per_instance = 99
         else:
-            backoff_per_instance = msgs_in_queue / asg_size
+            backlog_per_instance = msgs_in_queue / asg_size
 
-        logger.info(f'backoff per instance: {backoff_per_instance}')
+        logger.info(f'backlog per instance: {backlog_per_instance}')
 
-        # TODO send the backoff_per_instance metric to cloudwatch
+        # TODO send the backlog_per_instance metric to cloudwatch
 
         time.sleep(60)
