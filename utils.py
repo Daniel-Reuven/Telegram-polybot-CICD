@@ -65,7 +65,7 @@ def calc_backlog_per_instance(sqs_queue_client, asg_client, asg_group_name):
         cloudwatch = boto3.client('cloudwatch')
         # Put custom metrics
         cloudwatch.put_metric_data(
-            Namespace='monitor-polybot-asg',
+            Namespace='daniel-reuven-monitor-polybot-asg',
             MetricData=[
                 {
                     'MetricName': 'backlog_per_instance',
