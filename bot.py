@@ -54,7 +54,7 @@ class YoutubeObjectDetectBot(Bot):
         super().__init__(token)
         threading.Thread(
             target=calc_backlog_per_instance,
-            args=(workers_queue, asg, config.get("autoscaling_group_name"))
+            args=(workers_queue, asg, config.get("autoscaling_group_name"), config.get('aws_region'))
         ).start()
 
     def _message_handler(self, update, context):

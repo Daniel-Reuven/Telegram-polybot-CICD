@@ -157,3 +157,4 @@ crashlytics.properties
 crashlytics-build.properties
 fabric.properties
 
+/asg-config.json

@@ -50,7 +50,7 @@ def search_download_youtube_video(video_name, num_results, s3_bucket_name):
         return [ydl.prepare_filename(video) for video in videos]
 
 
-def calc_backlog_per_instance(sqs_queue_client, asg_client, asg_group_name):
+def calc_backlog_per_instance(sqs_queue_client, asg_client, asg_group_name, aws_region):
     while True:
         msgs_in_queue = int(sqs_queue_client.attributes.get('ApproximateNumberOfMessages'))
         asg_size = asg_client.describe_auto_scaling_groups(AutoScalingGroupNames=[asg_group_name])['AutoScalingGroups'][0]['DesiredCapacity']
@@ -62,7 +62,7 @@ def calc_backlog_per_instance(sqs_queue_client, asg_client, asg_group_name):
             backlog_per_instance = msgs_in_queue / asg_size
         logger.info(f'backlog per instance: {backlog_per_instance}')
         # Create CloudWatch client
-        cloudwatch = boto3.client('cloudwatch')
+        cloudwatch = boto3.client('cloudwatch', aws_region)
         # Put custom metrics
         cloudwatch.put_metric_data(
             Namespace='daniel-reuven-monitor-polybot-asg',
