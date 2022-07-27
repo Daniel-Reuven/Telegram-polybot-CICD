@@ -50,6 +50,26 @@ def search_download_youtube_video(video_name, num_results, s3_bucket_name):
         return [ydl.prepare_filename(video) for video in videos]
 
 
+def search_youtube_video(video_name, video_url):
+    """
+    This function downloads the first num_results search results from YouTube
+    :param video_url: url of the video
+    :param video_name: string of the video name
+    :return: list of paths to your downloaded video files
+    """
+    # Parameters for youtube_dl use
+    ydl = {'noplaylist': 'True', 'format': 'bestvideo[ext=mp4]+bestaudio[ext=mp4]/mp4', 'outtmpl': '%(id)s.%(ext)s'}
+    # Try to download and return list of video/s or error msg
+    with YoutubeDL(ydl) as ydl:
+        ydl.cache.remove()
+        if video_name is None:
+            videos = ydl.extract_info(video_url, download=False)
+            return videos
+        elif video_url is None:
+            videos = ydl.extract_info(f"ytsearch{1}:{video_name}", download=False)['entries']
+            return videos
+
+
 def calc_backlog_per_instance(sqs_queue_client, asg_client, asg_group_name, aws_region):
     while True:
         msgs_in_queue = int(sqs_queue_client.attributes.get('ApproximateNumberOfMessages'))

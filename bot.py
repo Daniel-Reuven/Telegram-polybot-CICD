@@ -4,7 +4,8 @@ import botocore
 from telegram.ext import Updater, MessageHandler, Filters
 from loguru import logger
 import boto3
-from utils import calc_backlog_per_instance
+from boto3.dynamodb.conditions import Key
+from utils import calc_backlog_per_instance, search_youtube_video
 
 
 class Bot:
@@ -69,6 +70,25 @@ class YoutubeObjectDetectBot(Bot):
             logger.info(f'msg {response.get("MessageId")} has been sent to queue')
             self.send_text(update, f'Your message is being processed...', chat_id=chat_id)
 
+            if update.message.text.startswith('/myvideos'):
+                response = table.query(KeyConditionExpression=Key('chatId').eq(chat_id))
+                for key, value in response.items():
+                    array_length = len(value)
+                    for i in range(array_length):
+                        temp_dict = value[i]
+                        video_url = temp_dict['url']
+                        video = search_youtube_video(None, video_url)
+                        self.send_text(update, f'Video title: {video["title"]}, Video Link: {video["webpage_url"]}', chat_id=chat_id)
+            else:
+                for video in search_youtube_video(update.message.text, None):
+                    item = {
+                        'chatId': chat_id,
+                        'videoId': video['id'],
+                        'url': video['webpage_url'],
+                        'title': video['title']
+                    }
+                    response2 = table.put_item(Item=item)
+
         except botocore.exceptions.ClientError as error:
             logger.error(error)
             self.send_text(update, f'Something went wrong, please try again...')
@@ -84,6 +104,8 @@ if __name__ == '__main__':
     sqs = boto3.resource('sqs', region_name=config.get('aws_region'))
     workers_queue = sqs.get_queue_by_name(QueueName=config.get('bot_to_worker_queue_name'))
     asg = boto3.client('autoscaling', region_name=config.get('aws_region'))
+    dynamodb = boto3.resource('dynamodb', region_name=config.get('aws_region'))
+    table = dynamodb.Table(config.get('table_name'))
 
     my_bot = YoutubeObjectDetectBot(_token)
     my_bot.start()
