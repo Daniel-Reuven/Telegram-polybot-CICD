@@ -97,16 +97,15 @@ def send_videos_from_queue2(sqs_queue_client2, bucket_name):
     i = 0
     while True:
         i += 1
-        msgs_in_videos_queue = int(sqs_queue_client2.attributes.get('ApproximateNumberOfMessages'))
-        logger.info(f'msgs_in_videos_queue: {msgs_in_videos_queue}')
-        if msgs_in_videos_queue > 0:
-            logger.info(f'Attempting to send video to user via chat')
-            try:
-                messages = sqs_queue_client2.receive_messages(
-                    MessageAttributeNames=['All'],
-                    MaxNumberOfMessages=1,
-                    WaitTimeSeconds=10
-                )
+        try:
+            messages = sqs_queue_client2.receive_messages(
+                MessageAttributeNames=['All'],
+                MaxNumberOfMessages=10,
+                WaitTimeSeconds=5
+            )
+            logger.info(f'msgs in videos queue: {len(messages)}')
+            if messages:
+                logger.info(f'Attempting to send video to user via chat')
                 for msg in messages:
                     logger.info(f'processing message {msg}')
                     video_filename = msg.body
@@ -121,8 +120,8 @@ def send_videos_from_queue2(sqs_queue_client2, bucket_name):
                     if 'Successful' in response:
                         logger.info(f'msg {msg} has been handled successfully')
                 logger.info(f'file has been downloaded')
-            except botocore.exceptions.ClientError as err:
-                logger.exception(f"Couldn't receive messages {err}")
+        except botocore.exceptions.ClientError as err:
+            logger.exception(f"Couldn't receive messages {err}")
         if i == 6:
             logger.info(f'Process is running, checking queue every 10 seconds, this msg repeats every 60 seconds')
             i = 0
@@ -184,7 +183,7 @@ def generate_presigned_url(key_filename, bucket, object_name=None):
     if object_name is None:
         object_name = s3_prefix
     try:
-        response = s3_client.generate_presigned_url('get_object', Params={'Bucket': bucket, 'Key': s3_prefix}, ExpiresIn=600)
+        response = s3_client.generate_presigned_url('get_object', Params={'Bucket': bucket, 'Key': s3_prefix}, ExpiresIn=1800)
     except ClientError as e:
         logger.error(e)
         return False

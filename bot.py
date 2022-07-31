@@ -54,10 +54,10 @@ class QuoteBot(Bot):
 class YoutubeObjectDetectBot(Bot):
     def __init__(self, token):
         super().__init__(token)
-        threading.Thread(
-            target=calc_backlog_per_instance,
-            args=(workers_queue, asg, config.get("autoscaling_group_name"), config.get('aws_region'))
-        ).start()
+        # threading.Thread(
+        #     target=calc_backlog_per_instance,
+        #     args=(workers_queue, asg, config.get("autoscaling_group_name"), config.get('aws_region'))
+        # ).start()
         threading.Thread(
             target=send_videos_from_queue2,
             args=(worker_to_bot_queue, config.get('bucket_name'))
