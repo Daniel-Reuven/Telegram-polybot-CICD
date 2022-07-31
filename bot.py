@@ -5,7 +5,8 @@ from telegram.ext import Updater, MessageHandler, Filters
 from loguru import logger
 import boto3
 from boto3.dynamodb.conditions import Key
-from utils import calc_backlog_per_instance, search_youtube_video
+from utils import calc_backlog_per_instance, search_youtube_video, send_videos_from_queue2
+
 
 
 class Bot:
@@ -57,29 +58,34 @@ class YoutubeObjectDetectBot(Bot):
             target=calc_backlog_per_instance,
             args=(workers_queue, asg, config.get("autoscaling_group_name"), config.get('aws_region'))
         ).start()
+        threading.Thread(
+            target=send_videos_from_queue2,
+            args=(worker_to_bot_queue, config.get('bucket_name'))
+        ).start()
 
     def _message_handler(self, update, context):
         try:
             chat_id = str(update.effective_message.chat_id)
-            response = workers_queue.send_message(
-                MessageBody=update.message.text,
-                MessageAttributes={
-                    'chat_id': {'StringValue': chat_id, 'DataType': 'String'}
-                }
-            )
-            logger.info(f'msg {response.get("MessageId")} has been sent to queue')
-            self.send_text(update, f'Your message is being processed...', chat_id=chat_id)
-
             if update.message.text.startswith('/myvideos'):
                 response = table.query(KeyConditionExpression=Key('chatId').eq(chat_id))
                 for key, value in response.items():
-                    array_length = len(value)
-                    for i in range(array_length):
-                        temp_dict = value[i]
-                        video_url = temp_dict['url']
-                        video = search_youtube_video(None, video_url)
-                        self.send_text(update, f'Video title: {video["title"]}, Video Link: {video["webpage_url"]}', chat_id=chat_id)
+                    if isinstance(value, list):
+                        array_length = len(value)
+                        for i in range(array_length):
+                            temp_dict = value[i]
+                            video_url = temp_dict['url']
+                            video = search_youtube_video(None, video_url)
+                            self.send_text(update, f'Video Name: {video["title"]}, Video Link: {video["webpage_url"]}', chat_id=chat_id)
+                logger.info(f'sent videos information to client, chat_id: {chat_id}')
             else:
+                response = workers_queue.send_message(
+                    MessageBody=update.message.text,
+                    MessageAttributes={
+                        'chat_id': {'StringValue': chat_id, 'DataType': 'String'}
+                    }
+                )
+                logger.info(f'msg {response.get("MessageId")} has been sent to queue')
+                self.send_text(update, f'Your message is being processed...', chat_id=chat_id)
                 for video in search_youtube_video(update.message.text, None):
                     item = {
                         'chatId': chat_id,
@@ -103,6 +109,7 @@ if __name__ == '__main__':
 
     sqs = boto3.resource('sqs', region_name=config.get('aws_region'))
     workers_queue = sqs.get_queue_by_name(QueueName=config.get('bot_to_worker_queue_name'))
+    worker_to_bot_queue = sqs.get_queue_by_name(QueueName=config.get('worker_to_bot_queue_name'))
     asg = boto3.client('autoscaling', region_name=config.get('aws_region'))
     dynamodb = boto3.resource('dynamodb', region_name=config.get('aws_region'))
     table = dynamodb.Table(config.get('table_name'))

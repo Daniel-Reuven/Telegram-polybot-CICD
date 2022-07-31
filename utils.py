@@ -3,6 +3,7 @@ import time
 import os
 import boto3
 import botocore
+import requests
 from botocore.exceptions import ClientError
 from yt_dlp import YoutubeDL
 from loguru import logger
@@ -25,13 +26,8 @@ def search_download_youtube_video(video_name, num_results, s3_bucket_name):
         # 1. get a list of video file names with download=false parameter
         videos = ydl.extract_info(f"ytsearch{num_results}:{video_name}", download=False)['entries']
         for video in videos:
-            # if video['duration'] >= 900:
-            #     return "Error, selected track/s are above predefined duration limit"
-            # if video['duration'] <= 0.1:
-            #     return "Error, selected track/s are below predefined duration limit"
             localprefix = video['id'] + '.mp4'
             prefix = 'ytdlAppData/' + video['id'] + '.mp4'
-            # print(s3_bucket_name)
             # check aws s3 bucket for file, then locally and act accordingly,prefix != ydl.prepare_filename(video)
             if not (check_s3_file(prefix, s3_bucket_name)):
                 if not (os.path.isfile(ydl.prepare_filename(video))):
@@ -97,6 +93,42 @@ def calc_backlog_per_instance(sqs_queue_client, asg_client, asg_group_name, aws_
         time.sleep(60)
 
 
+def send_videos_from_queue2(sqs_queue_client2, bucket_name):
+    i = 0
+    while True:
+        i += 1
+        msgs_in_videos_queue = int(sqs_queue_client2.attributes.get('ApproximateNumberOfMessages'))
+        logger.info(f'msgs_in_videos_queue: {msgs_in_videos_queue}')
+        if msgs_in_videos_queue > 0:
+            logger.info(f'Attempting to send video to user via chat')
+            try:
+                messages = sqs_queue_client2.receive_messages(
+                    MessageAttributeNames=['All'],
+                    MaxNumberOfMessages=1,
+                    WaitTimeSeconds=10
+                )
+                for msg in messages:
+                    logger.info(f'processing message {msg}')
+                    video_filename = msg.body
+                    chat_id = msg.message_attributes.get('chat_id').get('StringValue')
+                    video_presigned_url = generate_presigned_url(video_filename, bucket_name, None)
+                    send_message(chat_id, f'The following download link will be available for the next few minutes: {video_presigned_url}')
+                    # delete message from the queue after it was handled
+                    response = sqs_queue_client2.delete_messages(Entries=[{
+                        'Id': msg.message_id,
+                        'ReceiptHandle': msg.receipt_handle
+                    }])
+                    if 'Successful' in response:
+                        logger.info(f'msg {msg} has been handled successfully')
+                logger.info(f'file has been downloaded')
+            except botocore.exceptions.ClientError as err:
+                logger.exception(f"Couldn't receive messages {err}")
+        if i == 6:
+            logger.info(f'Process is running, checking queue every 10 seconds, this msg repeats every 60 seconds')
+            i = 0
+        sleep(10)
+
+
 def check_s3_file(key_filename, s3_bucket_name):
     s3_prefix = 'ytdlAppData/' + key_filename
     s3 = boto3.resource('s3')
@@ -142,3 +174,32 @@ def download_file(key_filename, bucket, object_name=None):
         logger.error(e)
         return False
     return True
+
+
+def generate_presigned_url(key_filename, bucket, object_name=None):
+    s3_prefix = 'ytdlAppData/' + key_filename
+    # Upload the file
+    s3_client = boto3.client('s3')
+    # If S3 object_name was not specified, use key_filename
+    if object_name is None:
+        object_name = s3_prefix
+    try:
+        response = s3_client.generate_presigned_url('get_object', Params={'Bucket': bucket, 'Key': s3_prefix}, ExpiresIn=600)
+    except ClientError as e:
+        logger.error(e)
+        return False
+    return response
+
+
+def send_message(chat_id, text):
+    with open('.telegramToken') as f:
+        _token = f.read()
+    url = f"https://api.telegram.org/bot{_token}/sendMessage"
+    params = {
+        "chat_id": chat_id,
+        "text": text,
+    }
+    resp = requests.get(url, params=params)
+
+    # Throw an exception if Telegram API fails
+    resp.raise_for_status()
