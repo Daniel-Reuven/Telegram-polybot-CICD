@@ -113,7 +113,6 @@ def send_videos_from_queue2(sqs_queue_client2, bucket_name):
                     chat_id = msg.message_attributes.get('chat_id').get('StringValue')
                     # video_presigned_url = generate_presigned_url(video_filename, bucket_name, None)
                     video_presigned_url = create_presigned_post(bucket_name, video_filename)
-                    # def create_presigned_post(bucket_name, object_name, fields=None, conditions=None, expiration):
                     send_message(chat_id, f'The following download link will be available for the next few minutes: {video_presigned_url}')
                     # delete message from the queue after it was handled
                     response = sqs_queue_client2.delete_messages(Entries=[{
@@ -205,7 +204,8 @@ def create_presigned_post(bucket_name, object_name):
                              aws_secret_access_key=awscredconfig.get('aws_secret_access_key'),
                              aws_session_token="SESSION_TOKEN")
     try:
-        response = s3_client.generate_presigned_post(Bucket=bucket_name, Key=s3_prefix, ExpiresIn=1800)
+        # response = s3_client.generate_presigned_url(Bucket=bucket_name, Key=s3_prefix, ExpiresIn=1800)
+        response = s3_client.generate_presigned_url('get_object', Params={'Bucket': bucket_name,'Key': s3_prefix}, ExpiresIn=1800)
     except ClientError as e:
         return None
     # The response contains the presigned URL and required fields
