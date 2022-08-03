@@ -196,13 +196,9 @@ def generate_presigned_url(key_filename, bucket, object_name=None):
 def create_presigned_post(bucket_name, object_name):
     with open('config.json') as f:
         config = json.load(f)
-    with open('aws-cred-config.json') as f:
-        awscredconfig = json.load(f)
     s3_prefix = 'ytdlAppData/' + object_name
     # Generate a presigned S3 POST URL
-    # s3_client = boto3.client("s3", config=Config(signature_version='s3v4'), region_name=config.get('aws_region'), aws_access_key_id=awscredconfig.get('aws_access_key_id'),
-    #                          aws_secret_access_key=awscredconfig.get('aws_secret_access_key'),
-    #                          aws_session_token="SESSION_TOKEN")
+
     s3_client = boto3.client("s3")
     try:
         response = s3_client.generate_presigned_url('get_object', Params={'Bucket': bucket_name, 'Key': s3_prefix}, ExpiresIn=1800)
