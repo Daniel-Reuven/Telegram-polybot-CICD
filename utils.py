@@ -178,7 +178,8 @@ def download_file(key_filename, bucket, object_name=None):
 def generate_presigned_url(key_filename, bucket, object_name=None):
     s3_prefix = 'ytdlAppData/' + key_filename
     # Upload the file
-    s3_client = boto3.client('s3')
+    s3_client = boto3.client("s3", signature_version='s3v4')
+
     # If S3 object_name was not specified, use key_filename
     if object_name is None:
         object_name = s3_prefix
