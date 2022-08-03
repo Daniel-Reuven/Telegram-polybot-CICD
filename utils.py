@@ -111,8 +111,7 @@ def send_videos_from_queue2(sqs_queue_client2, bucket_name):
                     logger.info(f'processing message {msg}')
                     video_filename = msg.body
                     chat_id = msg.message_attributes.get('chat_id').get('StringValue')
-                    # video_presigned_url = generate_presigned_url(video_filename, bucket_name, None)
-                    video_presigned_url = create_presigned_post(bucket_name, video_filename)
+                    video_presigned_url = generate_presigned_url(video_filename, bucket_name, None)
                     send_message(chat_id, f'The following download link will be available for the next few minutes: {video_presigned_url}')
                     # delete message from the queue after it was handled
                     response = sqs_queue_client2.delete_messages(Entries=[{
@@ -180,7 +179,7 @@ def download_file(key_filename, bucket, object_name=None):
 def generate_presigned_url(key_filename, bucket, object_name=None):
     s3_prefix = 'ytdlAppData/' + key_filename
     # Upload the file
-    s3_client = boto3.client("s3", signature_version='s3v4')
+    s3_client = boto3.client("s3", config=Config(signature_version='s3v4'))
 
     # If S3 object_name was not specified, use key_filename
     if object_name is None:
@@ -190,21 +189,6 @@ def generate_presigned_url(key_filename, bucket, object_name=None):
     except ClientError as e:
         logger.error(e)
         return False
-    return response
-
-
-def create_presigned_post(bucket_name, object_name):
-    with open('config.json') as f:
-        config = json.load(f)
-    s3_prefix = 'ytdlAppData/' + object_name
-    # Generate a presigned S3 POST URL
-
-    s3_client = boto3.client("s3")
-    try:
-        response = s3_client.generate_presigned_url('get_object', Params={'Bucket': bucket_name, 'Key': s3_prefix}, ExpiresIn=1800)
-    except ClientError as e:
-        return None
-    # The response contains the presigned URL and required fields
     return response
 
 
