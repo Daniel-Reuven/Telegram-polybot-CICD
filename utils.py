@@ -200,18 +200,16 @@ def create_presigned_post(bucket_name, object_name):
         awscredconfig = json.load(f)
     s3_prefix = 'ytdlAppData/' + object_name
     # Generate a presigned S3 POST URL
-    s3_client = boto3.client("s3", config=Config(signature_version='s3v4'), region_name=config.get('aws_region'), aws_access_key_id=awscredconfig.get('aws_access_key_id'),
-                             aws_secret_access_key=awscredconfig.get('aws_secret_access_key'),
-                             aws_session_token="SESSION_TOKEN")
+    # s3_client = boto3.client("s3", config=Config(signature_version='s3v4'), region_name=config.get('aws_region'), aws_access_key_id=awscredconfig.get('aws_access_key_id'),
+    #                          aws_secret_access_key=awscredconfig.get('aws_secret_access_key'),
+    #                          aws_session_token="SESSION_TOKEN")
+    s3_client = boto3.client("s3")
     try:
-        # response = s3_client.generate_presigned_url(Bucket=bucket_name, Key=s3_prefix, ExpiresIn=1800)
-        response = s3_client.generate_presigned_url('get_object', Params={'Bucket': bucket_name,'Key': s3_prefix}, ExpiresIn=1800)
+        response = s3_client.generate_presigned_url('get_object', Params={'Bucket': bucket_name, 'Key': s3_prefix}, ExpiresIn=1800)
     except ClientError as e:
         return None
     # The response contains the presigned URL and required fields
     return response
-
-
 
 
 def send_message(chat_id, text):
