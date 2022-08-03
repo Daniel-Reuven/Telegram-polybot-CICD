@@ -40,6 +40,7 @@ def main():
                     logger.info(f'msg {msg} has been handled successfully')
         except botocore.exceptions.ClientError as err:
             logger.exception(f"Couldn't receive messages {err}")
+        logger.info(f'Waiting for new msgs')
         time.sleep(10)
 
 
