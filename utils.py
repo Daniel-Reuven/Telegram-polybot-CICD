@@ -199,6 +199,5 @@ def send_message(chat_id, text):
         "text": text,
     }
     resp = requests.get(url, params=params)
-
     # Throw an exception if Telegram API fails
     resp.raise_for_status()
