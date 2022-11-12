@@ -79,19 +79,20 @@ def calc_backlog_per_instance(sqs_queue_client, asg_client, asg_group_name, aws_
             backlog_per_instance = msgs_in_queue / asg_size
         logger.info(f'backlog per instance: {backlog_per_instance}')
         # Create CloudWatch client
-        cloudwatch = boto3.client('cloudwatch', aws_region)
+        # cloudwatch = boto3.client('cloudwatch', aws_region)
         # Put custom metrics
-        cloudwatch.put_metric_data(
-            Namespace='daniel-reuven-monitor-polybot-asg',
-            MetricData=[
-                {
-                    'MetricName': 'backlog_per_instance',
-                    'Value': backlog_per_instance,
-                    'Unit': 'Count'
-                },
-            ]
-        )
-        time.sleep(60)
+        # cloudwatch.put_metric_data(
+        #    Namespace='daniel-reuven-monitor-polybot-asg',
+        #    MetricData=[
+        #        {
+        #            'MetricName': 'backlog_per_instance',
+        #            'Value': backlog_per_instance,
+        #            'Unit': 'Count'
+        #        },
+        #    ]
+        #)
+        # time.sleep(60)
+        return backlog_per_instance
 
 
 def send_videos_from_queue2(sqs_queue_client2, bucket_name):

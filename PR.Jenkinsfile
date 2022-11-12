@@ -4,7 +4,15 @@ pipeline {
     stages {
         stage('Unittest') {
             steps {
-                echo "testing"
+                sh '''
+                pip install -r requirements.txt
+                python -m pytest --junitxml results.xml tests
+                '''
+            }
+            post {
+                always {
+                    junit allowEmptyResults: true, testResults: 'results.xml'
+                }
             }
         }
         stage('Functional test') {
