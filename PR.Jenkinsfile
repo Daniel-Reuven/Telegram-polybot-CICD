@@ -6,7 +6,7 @@ pipeline {
             steps {
                 sh '''
                 pip3 install -r requirements.txt
-                python -m pytest --junitxml results.xml tests
+                python3 -m pytest --junitxml results.xml tests
                 '''
             }
             post {
