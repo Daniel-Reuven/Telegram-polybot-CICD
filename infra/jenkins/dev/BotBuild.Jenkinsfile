@@ -8,7 +8,7 @@ pipeline {
     environment {
         REGISTRY_URL ="352708296901.dkr.ecr.eu-north-1.amazonaws.com"
         IMAGE_TAG = "0.0.$BUILD_NUMBER"
-        IMAGE_NAME = ""
+        IMAGE_NAME = "daniel-reuven-bot-app"
     }
     stages {
         steps {
@@ -23,18 +23,14 @@ pipeline {
             always {
                 sh '''
                    docker image prune -f --filter "label=app=bot"
-
                 '''
                 }
             }
-
         }
-
         stage('Trigger Deploy') {
             steps {
                 build job: 'BotDeploy', wait: false, parameters: [
                     string(name: 'BOT_IMAGE_NAME', value: "${REGISTRY_URL}/${IMAGE_NAME}:${IMAGE_TAG}")
                 ]
             }
-
 }
