@@ -103,6 +103,5 @@ if __name__ == '__main__':
     asg = boto3.client('autoscaling', region_name=config.get('aws_region'))
     dynamodb = boto3.resource('dynamodb', region_name=config.get('aws_region'))
     table = dynamodb.Table(config.get('table_name'))
-
     my_bot = YoutubeObjectDetectBot(_token)
     my_bot.start()
