@@ -11,7 +11,8 @@ pipeline {
         IMAGE_NAME = "daniel-reuven-bot-app"
     }
     stages {
-        steps {
+        stage('Trigger Build') {
+            steps {
                 sh '''
                 aws ecr get-login-password --region eu-north-1 | docker login --username AWS --password-stdin $REGISTRY_URL
                 docker build -t $IMAGE_NAME .
@@ -19,14 +20,15 @@ pipeline {
                 docker push $REGISTRY_URL/$IMAGE_NAME:$IMAGE_TAG
                 '''
             }
-            post{
-            always {
-                sh '''
-                   docker image prune -f --filter "label=app=bot"
-                '''
+            post {
+                always {
+                    sh '''
+                       docker image prune -f --filter "label=app=bot"
+                    '''
                 }
             }
         }
+    }
         stage('Trigger Deploy') {
             steps {
                 build job: 'BotDeploy', wait: false, parameters: [
