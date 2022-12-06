@@ -5,8 +5,7 @@ from telegram.ext import Updater, MessageHandler, Filters
 from loguru import logger
 import boto3
 from boto3.dynamodb.conditions import Key
-from utils import calc_backlog_per_instance, search_youtube_video, send_videos_from_queue2
-
+from common.utils import calc_backlog_per_instance, search_youtube_video, send_videos_from_queue2
 
 
 class Bot:
@@ -40,15 +39,6 @@ class Bot:
             # retry https://github.com/python-telegram-bot/python-telegram-bot/issues/1124
             update.message.reply_text(text, quote=quote)
 
-
-class QuoteBot(Bot):
-    def _message_handler(self, update, context):
-        to_quote = True
-
-        if update.message.text == 'Don\'t quote me please':
-            to_quote = False
-
-        self.send_text(update, f'Your original message: {update.message.text}', quote=to_quote)
 
 
 class YoutubeObjectDetectBot(Bot):
