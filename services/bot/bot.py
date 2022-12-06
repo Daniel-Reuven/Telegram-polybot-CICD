@@ -84,10 +84,10 @@ class YoutubeObjectDetectBot(Bot):
                         'title': video['title']
                     }
                     response2 = table.put_item(Item=item)
-
         except botocore.exceptions.ClientError as error:
             logger.error(error)
             self.send_text(update, f'Something went wrong, please try again...')
+
 
 if __name__ == '__main__':
     with open('.telegramToken') as f:
@@ -102,5 +102,6 @@ if __name__ == '__main__':
     asg = boto3.client('autoscaling', region_name=config.get('aws_region'))
     dynamodb = boto3.resource('dynamodb', region_name=config.get('aws_region'))
     table = dynamodb.Table(config.get('table_name'))
+
     my_bot = YoutubeObjectDetectBot(_token)
     my_bot.start()
