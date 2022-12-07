@@ -5,12 +5,10 @@ pipeline {
             args  '--user root -v /var/run/docker.sock:/var/run/docker.sock'
         }
     }
-
     environment {
-        REGISTRY_URL ="352708296901.dkr.ecr.eu-north-1.amazonaws.com"
-        IMAGE_TAG = "0.0.$BUILD_NUMBER"
-        IMAGE_NAME = ""
 
+        APP_ENV = "dev"
+    }
     parameters {
         string(name: 'BOT_IMAGE_NAME')
     }
