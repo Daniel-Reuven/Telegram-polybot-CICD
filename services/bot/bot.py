@@ -84,8 +84,6 @@ class YoutubeObjectDetectBot(Bot):
                         'title': video['title']
                     }
                     response2 = table.put_item(Item=item)
-
-
         except botocore.exceptions.ClientError as error:
             logger.error(error)
             self.send_text(update, f'Something went wrong, please try again...')
