@@ -6,7 +6,7 @@ pipeline {
         }
     }
     environment {
-
+        REGISTRY_URL = "352708296901.dkr.ecr.eu-central-1.amazonaws.com"
         APP_ENV = "dev"
     }
     parameters {
@@ -22,6 +22,7 @@ pipeline {
                     sh '''
                     K8S_CONFIGS=infra/k8s
 
+                    aws ecr get-login-password --region eu-central-1 | docker login --username AWS --password-stdin $REGISTRY_URL
                     # replace placeholders in YAML k8s files
                     bash common/replaceInFile.sh $K8S_CONFIGS/bot.yaml APP_ENV $APP_ENV
                     bash common/replaceInFile.sh $K8S_CONFIGS/bot.yaml BOT_IMAGE $BOT_IMAGE_NAME
