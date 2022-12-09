@@ -4,11 +4,11 @@ import boto3
 import botocore
 import os
 from loguru import logger
-from common.utils import search_download_youtube_video
+from common.utils import download_youtube_video_to_s3
 
 
 def process_msg(msg):
-    video_filename = search_download_youtube_video(msg, 1, s3_bucket_name)
+    video_filename = download_youtube_video_to_s3(msg, s3_bucket_name)
     print(f'the video file name is : {video_filename}')
     return video_filename
 
