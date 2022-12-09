@@ -58,10 +58,6 @@ pipeline {
     stages {
         stage('Bot Deploy') {
             steps {
-            script{
-                    println(BUILD_ENV)
-                    println(APP_ENV)
-            }
                 withCredentials([
                     string(credentialsId: 'telegram-bot-token', variable: 'TELEGRAM_TOKEN'),
                     file(credentialsId: 'kubeconfig', variable: 'KUBECONFIG')
@@ -73,6 +69,9 @@ pipeline {
                     bash common/replaceInFile.sh $K8S_CONFIGS/bot.yaml APP_ENV $APP_ENV
                     bash common/replaceInFile.sh $K8S_CONFIGS/bot.yaml BOT_IMAGE $BUILD_ENV
                     bash common/replaceInFile.sh $K8S_CONFIGS/bot.yaml TELEGRAM_TOKEN $(echo -n $TELEGRAM_TOKEN | base64)
+
+                    # authenticate with AWS EKS Cluster
+                    aws eks update-kubeconfig --region eu-central-1 --name dr-project-eks-cluster
 
                     # apply the configurations to k8s cluster
                     kubectl apply --kubeconfig ${KUBECONFIG} -f $K8S_CONFIGS/bot.yaml

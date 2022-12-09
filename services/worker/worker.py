@@ -3,7 +3,6 @@ import time
 import threading
 import boto3
 import os
-import pytz
 from datetime import datetime
 from loguru import logger
 from common.utils import download_youtube_video_to_s3, sync_quality_file, initial_download
@@ -11,10 +10,9 @@ from common.utils import download_youtube_video_to_s3, sync_quality_file, initia
 
 def main(quality_file_dt, quality_var):
     threading.Thread(
-        target=sync_quality_file, args=(config.get('bucket_name'),)
+        target=sync_quality_file, args=(config.get('bucket_name'), _token)
     ).start()
     i = 0
-    utc = pytz.UTC
     while True:
         dt_now = datetime.now()  # for logs
         quality_var_test = os.path.getmtime('quality_file.json')
@@ -62,24 +60,32 @@ def main(quality_file_dt, quality_var):
 
 
 if __name__ == '__main__':
-    with open('common/config.json') as f:
-        config = json.load(f)
-    f.close()
+    with open('env.txt') as f2:
+        env = f2.read()
+    if env == 'dev':
+        with open('common/config-dev.json') as f1:
+            config = json.load(f1)
+    else:
+        with open('common/config.json') as f1:
+            config = json.load(f1)
+    f1.close()
+    with open('secrets/.telegramToken') as f2:
+        _token = f2.read()
+    f2.close()
     sqs = boto3.resource('sqs', region_name=config.get('aws_region'))
     queue = sqs.get_queue_by_name(QueueName=config.get('bot_to_worker_queue_name'))
     worker_to_bot_queue = sqs.get_queue_by_name(QueueName=config.get('worker_to_bot_queue_name'))
     s3_bucket_name = config.get('bucket_name')
     # # Initialize secret file
-    # initial_download(config.get('bucket_name'), 'secret.json')
+    initial_download(s3_bucket_name, 'secret.json')
     # # Initialize quality file
-    initial_download(config.get('bucket_name'), 'quality_file.json')
-    with open('quality_file.json') as f2:
-        qconfig = json.load(f2)
-    f2.close()
+    initial_download(s3_bucket_name, 'quality_file.json')
+    with open('quality_file.json') as f3:
+        qconfig = json.load(f3)
+    f3.close()
     quality_var = qconfig.get('quality')
     quality_file = os.path.getmtime('quality_file.json')
     quality_file_dt = datetime.fromtimestamp(quality_file)
-    f2.close()
     cwd = os.getcwd()
     path = f"{cwd}/ytdlAppData"
     # Check whether the specified path exists or not

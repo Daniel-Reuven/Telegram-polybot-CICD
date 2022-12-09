@@ -20,3 +20,14 @@ spec:
       containers:
         - name: worker-{{APP_ENV}}
           image: {{WORKER_IMAGE}}
+          volumeMounts:
+            - name: bot-token
+              mountPath: "/app/secrets"
+              readOnly: true
+      volumes:
+        - name: bot-token
+          secret:
+            secretName: telegram-bot-token
+            items:
+              - key: token
+                path: ".telegramToken"

@@ -69,6 +69,9 @@ pipeline {
                     bash common/replaceInFile.sh $K8S_CONFIGS/worker.yaml APP_ENV $APP_ENV
                     bash common/replaceInFile.sh $K8S_CONFIGS/worker.yaml WORKER_IMAGE $BUILD_ENV
 
+                    # authenticate with AWS EKS Cluster
+                    aws eks update-kubeconfig --region eu-central-1 --name dr-project-eks-cluster
+
                     # apply the configurations to k8s cluster
                     kubectl apply --kubeconfig ${KUBECONFIG} -f $K8S_CONFIGS/worker.yaml
                     '''

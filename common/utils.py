@@ -128,7 +128,7 @@ def send_videos_from_bot_queue(worker_to_bot_queue, bucket_name):
         sleep(10)
 
 
-def sync_quality_file(s3_bucket_name):
+def sync_quality_file(s3_bucket_name, _token):
     i = 0
     # Start looping with sleep every 15 minutes
     while True:
@@ -143,22 +143,22 @@ def sync_quality_file(s3_bucket_name):
                 download_file2('quality_file.json', s3_bucket_name)
                 logger.info('Successfully updated quality file.')
                 # Possible code for informing dev of successful change
-                # with open('/app/secret.json') as json_handler:
-                #     secret_data = json.load(json_handler)
-                # dev_chat_id = secret_data["dev_chat_id"]
-                # json_handler.close()
-                # telegram_api_send_single_message(dev_chat_id, 'Backend: quality updated successfully')
+                with open('/app/secret.json') as json_handler:
+                    secret_data = json.load(json_handler)
+                dev_chat_id = secret_data["dev_chat_id"]
+                json_handler.close()
+                telegram_api_send_single_message(dev_chat_id, 'Backend: quality updated successfully')
             logger.info(f'Sync process is running as of {dt_now}, checking for changes every 1 minute.')
         except Exception as e:
             logger.error(e)
             logger.info(dt_file.astimezone().tzinfo)
             logger.info(dt_now.astimezone().tzinfo)
             # Possible code for informing dev of failed change
-            # with open('/app/secret.json') as json_handler:
-            #     secret_data = json.load(json_handler)
-            # dev_chat_id = secret_data["dev_chat_id"]
-            # json_handler.close()
-            # telegram_api_send_single_message(dev_chat_id, f'Backend: Something went wrong - {e}')
+            with open('/app/secret.json') as json_handler:
+                secret_data = json.load(json_handler)
+            dev_chat_id = secret_data["dev_chat_id"]
+            json_handler.close()
+            telegram_api_send_single_message(dev_chat_id, f'Backend: Something went wrong - {e}')
         sleep(60)
 
 
@@ -304,7 +304,9 @@ def telegram_api_send_single_message(chat_id, text):
         "text": text,
         "parse_mode": "HTML",
     }
-    resp = requests.get(url, params=params)
-    logger.info(f'Attempting to send msg to customer')
-    # Throw an exception if Telegram API fails
-    resp.raise_for_status()
+    try:
+        resp = requests.get(url, params=params)
+        logger.info(f'Attempting to send msg to {chat_id}')
+    except requests.exceptions.RequestException as e:
+        # Throw an exception if Telegram API fails
+        logger.Error(f'Status: {e}'.format())

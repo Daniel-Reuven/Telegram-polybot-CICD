@@ -38,9 +38,8 @@ class VideoDownloaderBot(Bot):
     def __init__(self, token):
         super().__init__(token)
         # Starts a thread to handle bot queue
-        threading.Thread(
-            target=send_videos_from_bot_queue, args=(worker_to_bot_queue, config.get('bucket_name'))
-        ).start()
+        self.thread1 = threading.Thread(target=send_videos_from_bot_queue, args=(worker_to_bot_queue, config.get('bucket_name')))
+        self.thread1.start()
 
     def _message_handler(self, update, context):
         # Gather user information for logging purposes
@@ -62,13 +61,27 @@ class VideoDownloaderBot(Bot):
             sleep(1)
             self.send_text(update, f'Send a video link, get back a download link for that video\n/help - Display help information.')
             logger.info(f'help menu requested'.format())
-        # Handle "/help" mode
+        # Handle "/quality" mode
         elif update.message.text.lower() == '/quality':
             with open('quality_file.json') as f2:
                 qfile_data = json.load(f2)
             f2.close()
             self.send_text(update, f'Quality: up to {qfile_data["quality"]}')
             logger.info(f'quality check requested'.format())
+        # Handle "/reloadconfig" mode
+        # elif update.message.text.lower() == '/reloadconfig':
+        #     if env == 'dev':
+        #         with open('common/config-dev.json') as f1:
+        #             config = json.load(f1)
+        #     else:
+        #         with open('common/config.json') as f1:
+        #             config = json.load(f1)
+        #     f1.close()
+        #     sqs = boto3.resource('sqs', region_name=config.get('aws_region'))
+        #     bot_to_worker_queue = sqs.get_queue_by_name(QueueName=config.get('bot_to_worker_queue_name'))
+        #     worker_to_bot_queue = sqs.get_queue_by_name(QueueName=config.get('worker_to_bot_queue_name'))
+        #     self.send_text(update, f'Quality: up to {qfile_data["quality"]}')
+        #     logger.info(f'quality check requested'.format())
         # Handle "/setquality" mode
         elif update.message.text.lower().startswith('/setquality'):
             if chat_id == dev_chat_id:
@@ -143,11 +156,17 @@ class VideoDownloaderBot(Bot):
 
 
 if __name__ == '__main__':
-    with open('secrets/.telegramToken') as f:
-        _token = f.read()
-    f.close()
-    with open('common/config.json') as f2:
-        config = json.load(f2)
+    with open('env.txt') as f2:
+        env = f2.read()
+    if env == 'dev':
+        with open('common/config-dev.json') as f1:
+            config = json.load(f1)
+    else:
+        with open('common/config.json') as f1:
+            config = json.load(f1)
+    f1.close()
+    with open('secrets/.telegramToken') as f2:
+        _token = f2.read()
     f2.close()
     # Initialize secret file
     initial_download(config.get('bucket_name'), 'secret.json')
