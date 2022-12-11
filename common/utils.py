@@ -99,9 +99,7 @@ def send_videos_from_bot_queue(worker_to_bot_queue, bucket_name):
                     video_filename = msg.body
                     logger.info(f'{video_filename} = filename')
                     if video_filename == "Error: Server error has occurred":
-                        chat_id = msg.message_attributes.get('chat_id').get('StringValue')
-                        video_presigned_url = generate_presigned_url(video_filename, bucket_name, None)
-                        telegram_api_send_single_message(chat_id, f'The following download link will be available for the next few minutes: {video_presigned_url}')
+                        telegram_api_send_single_message(chat_id, f'There was an error trying to complete your request.')
                         # delete message from the queue after it was handled
                         response = worker_to_bot_queue.delete_messages(Entries=[{
                             'Id': msg.message_id,
@@ -110,7 +108,9 @@ def send_videos_from_bot_queue(worker_to_bot_queue, bucket_name):
                         if 'Successful' in response:
                             logger.info(f'msg {msg} has been handled successfully')
                     else:
-                        telegram_api_send_single_message(chat_id, f'There was an error trying to complete your request.')
+                        chat_id = msg.message_attributes.get('chat_id').get('StringValue')
+                        video_presigned_url = generate_presigned_url(video_filename, bucket_name, None)
+                        telegram_api_send_single_message(chat_id, f'The following download link will be available for the next few minutes: {video_presigned_url}')
                         # delete message from the queue after it was handled
                         response = worker_to_bot_queue.delete_messages(Entries=[{
                             'Id': msg.message_id,
