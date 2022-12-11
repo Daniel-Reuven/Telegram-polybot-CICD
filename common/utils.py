@@ -52,13 +52,13 @@ def download_youtube_video_to_s3(yt_link, s3_bucket_name):
                     sleep(1)
                     # Upload the video to S3 bucket-folder and remove from local storage.
                     logger.info(f"Uploading {folderfixfilename} to S3 bucket {s3_bucket_name}")
-                    upload_file(filenamefix, s3_bucket_name)
+                    upload_file(folderfixfilename, s3_bucket_name)
                     os.remove(folderfixfilename)
                     return filenamefix
                 else:
                     # Upload the video to S3 bucket-folder and remove from local storage.
                     logger.info(f"Uploading {folderfixfilename} to S3 bucket {s3_bucket_name}")
-                    upload_file(filenamefix, s3_bucket_name)
+                    upload_file(folderfixfilename, s3_bucket_name)
                     os.remove(folderfixfilename)
                     return filenamefix
             else:  # File exists in S3 bucket-folder, no download needed.
@@ -99,6 +99,7 @@ def send_videos_from_bot_queue(worker_to_bot_queue, bucket_name):
                     video_filename = msg.body
                     logger.info(f'{video_filename} = filename')
                     if video_filename == "Error: Server error has occurred":
+                        chat_id = msg.message_attributes.get('chat_id').get('StringValue')
                         telegram_api_send_single_message(chat_id, f'There was an error trying to complete your request.')
                         # delete message from the queue after it was handled
                         response = worker_to_bot_queue.delete_messages(Entries=[{
@@ -149,6 +150,8 @@ def check_s3_file(key_filename, s3_bucket_name):
 def upload_file(key_filename, bucket, object_name=None):
     # Function to upload file(path) to S3 bucket
     s3_prefix = 'ytdlAppData/' + key_filename
+    # Fix file name:
+    key_filename = key_filename.replace("ytdlAppData/", "")
     # Upload the file
     s3_client = boto3.client('s3')
     # If S3 object_name was not specified, use key_filename
