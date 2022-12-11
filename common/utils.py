@@ -14,56 +14,55 @@ from validators import ValidationFailure
 
 
 def download_youtube_video_to_s3(yt_link, s3_bucket_name):
-    if mode == 1:
-        try:
-            # Parameters for youtube_dl use
-            ydl = {
-                'noplaylist': 'True',
-                'format': 'bestvideo[height<=1080][ext=mp4]+bestaudio[ext=m4a]/best[ext=mp4]/best',
-                'writethumbnail': True,
-                'postprocessors': [{
-                    'key': 'EmbedThumbnail',
-                    'already_have_thumbnail': False,
-                }],
-                'outtmpl': './ytdlAppData/%(id)s.%(ext)s',
-                'verbose': False,
-            }
-            with yt_dlp.YoutubeDL(ydl) as ydl:
-                # Clean local cache
-                ydl.cache.remove()
-                # Get info about the video via URL
-                video = ydl.extract_info(yt_link, download=False)
-                # Manipulate filename to remove unwanted characters
-                folderogfilename = 'ytdlAppData/' + video['id'] + '.mp4'
-                filenameog = video['title'] + '.mp4'
-                filenamefix = re.sub(r'[^a-zA-Z0-9\u0590-\u05FF\u0627-\u064a\u0400-\u04FF \n\.-]', '', filenameog)
-                filenamefix = filenamefix.replace("  ", " ")
-                folderfixfilename = 'ytdlAppData/' + filenamefix
-                # check aws s3 bucket for the video
-                if not (check_s3_file(folderfixfilename, s3_bucket_name)):
-                    # check locally for the video
-                    if not (os.path.isfile(folderfixfilename)):
-                        # Download the video
-                        video = ydl.extract_info(yt_link, download=True)
-                        # Rename the video
-                        print(f"Renaming file {folderogfilename} to {folderfixfilename}")
-                        os.rename(folderogfilename, folderfixfilename)
-                        # Upload the video to S3 bucket-folder and remove from local storage.
-                        upload_file(folderfixfilename, s3_bucket_name)
-                        os.remove(folderfixfilename)
-                        return filenamefix
-                    else:
-                        # Upload the video to S3 bucket-folder and remove from local storage.
-                        upload_file(folderfixfilename, s3_bucket_name)
-                        os.remove(folderfixfilename)
-                        return filenamefix
-                else:  # File exists in S3 bucket-folder, no download needed.
-                    if os.path.isfile(folderfixfilename):
-                        # If the video exists locally, delete.
-                        os.remove(folderfixfilename)
+    try:
+        # Parameters for youtube_dl use
+        ydl = {
+            'noplaylist': 'True',
+            'format': 'bestvideo[height<=1080][ext=mp4]+bestaudio[ext=m4a]/best[ext=mp4]/best',
+            'writethumbnail': True,
+            'postprocessors': [{
+                'key': 'EmbedThumbnail',
+                'already_have_thumbnail': False,
+            }],
+            'outtmpl': './ytdlAppData/%(id)s.%(ext)s',
+            'verbose': False,
+        }
+        with yt_dlp.YoutubeDL(ydl) as ydl:
+            # Clean local cache
+            ydl.cache.remove()
+            # Get info about the video via URL
+            video = ydl.extract_info(yt_link, download=False)
+            # Manipulate filename to remove unwanted characters
+            folderogfilename = 'ytdlAppData/' + video['id'] + '.mp4'
+            filenameog = video['title'] + '.mp4'
+            filenamefix = re.sub(r'[^a-zA-Z0-9\u0590-\u05FF\u0627-\u064a\u0400-\u04FF \n\.-]', '', filenameog)
+            filenamefix = filenamefix.replace("  ", " ")
+            folderfixfilename = 'ytdlAppData/' + filenamefix
+            # check aws s3 bucket for the video
+            if not (check_s3_file(folderfixfilename, s3_bucket_name)):
+                # check locally for the video
+                if not (os.path.isfile(folderfixfilename)):
+                    # Download the video
+                    video = ydl.extract_info(yt_link, download=True)
+                    # Rename the video
+                    print(f"Renaming file {folderogfilename} to {folderfixfilename}")
+                    os.rename(folderogfilename, folderfixfilename)
+                    # Upload the video to S3 bucket-folder and remove from local storage.
+                    upload_file(folderfixfilename, s3_bucket_name)
+                    os.remove(folderfixfilename)
                     return filenamefix
-        except:
-            return "Error: Server error has occurred"
+                else:
+                    # Upload the video to S3 bucket-folder and remove from local storage.
+                    upload_file(folderfixfilename, s3_bucket_name)
+                    os.remove(folderfixfilename)
+                    return filenamefix
+            else:  # File exists in S3 bucket-folder, no download needed.
+                if os.path.isfile(folderfixfilename):
+                    # If the video exists locally, delete.
+                    os.remove(folderfixfilename)
+                return filenamefix
+    except:
+        return "Error: Server error has occurred"
 
 
 def is_string_an_url(url_string: str) -> bool:
