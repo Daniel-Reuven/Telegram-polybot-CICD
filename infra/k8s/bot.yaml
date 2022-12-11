@@ -16,6 +16,8 @@ metadata:
     app: bot-{{APP_ENV}}
 spec:
   replicas: 1
+  strategy:
+    type: Recreate
   selector:
     matchLabels:
       app: bot-{{APP_ENV}}
