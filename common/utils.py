@@ -13,7 +13,7 @@ from datetime import datetime
 from validators import ValidationFailure
 
 
-def download_youtube_video_to_s3(yt_link, mode, s3_bucket_name):
+def download_youtube_video_to_s3(yt_link, s3_bucket_name):
     if mode == 1:
         try:
             # Parameters for youtube_dl use
