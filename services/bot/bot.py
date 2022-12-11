@@ -79,6 +79,7 @@ class YouTubeVideoDownloaderBot(Bot):
                         }
                     )
                     logger.info(f'Message {response.get("MessageId")} has been sent to SQS queue({bot_to_worker_queue})')
+
                 else:
                     # Send a message to customer saying the URL is invalid
                     self.send_text(update, f'Invalid URL, please try again with a valid URL.')
