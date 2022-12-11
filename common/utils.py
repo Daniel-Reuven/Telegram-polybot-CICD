@@ -80,10 +80,10 @@ def is_string_an_url(url_string: str) -> bool:
 
 
 def send_videos_from_bot_queue(worker_to_bot_queue, bucket_name):
-    dtnow = datetime.now().strftime("%d/%m/%Y - %H:%M:%S")
     i = 0
     # Start looping with sleep every 10 seconds to check for messages in queue.
     while True:
+        dtnow = datetime.now().strftime("%d/%m/%Y - %H:%M:%S")
         i += 1
         try:
             messages = worker_to_bot_queue.receive_messages(
@@ -119,7 +119,7 @@ def send_videos_from_bot_queue(worker_to_bot_queue, bucket_name):
                         }])
                         if 'Successful' in response:
                             logger.info(f'msg {msg} has been handled successfully')
-                logger.info(f'file has been downloaded')
+                        logger.info(f'file has been downloaded')
         except botocore.exceptions.ClientError as err:
             logger.exception(f"Couldn't receive messages {err}")
         # every 60 seconds update log to show that thread is running.
