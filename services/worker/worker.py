@@ -7,12 +7,6 @@ from loguru import logger
 from common.utils import download_youtube_video_to_s3
 
 
-def process_msg(msg):
-    video_filename = download_youtube_video_to_s3(msg, s3_bucket_name)
-    print(f'the video file name is : {video_filename}')
-    return video_filename
-
-
 def main():
     while True:
         try:
@@ -23,7 +17,7 @@ def main():
             )
             for msg in messages:
                 logger.info(f'processing message {msg}')
-                video_filename = process_msg(msg.body)
+                video_filename = download_youtube_video_to_s3(msg.body, s3_bucket_name)
                 chat_id = msg.message_attributes.get('chat_id').get('StringValue')
                 response2 = worker_to_bot_queue.send_message(
                     MessageBody=video_filename[0],
@@ -56,10 +50,7 @@ if __name__ == '__main__':
     path = f"{cwd}/ytdlAppData"
     # Check whether the specified path exists or not
     isExist = os.path.exists(path)
-
     if not isExist:
         # Create a new directory because it does not exist
         os.makedirs(path)
-        print("The new directory is created!")
-
     main()

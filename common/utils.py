@@ -74,14 +74,14 @@ def is_string_an_url(url_string: str) -> bool:
     return result
 
 
-def send_videos_from_bot_queue(sqs_queue_client2, bucket_name):
+def send_videos_from_bot_queue(worker_to_bot_queue, bucket_name):
     dtnow = datetime.now().strftime("%d/%m/%Y - %H:%M:%S")
     i = 0
     # Start looping with sleep every 10 seconds to check for messages in queue.
     while True:
         i += 1
         try:
-            messages = sqs_queue_client2.receive_messages(
+            messages = worker_to_bot_queue.receive_messages(
                 MessageAttributeNames=['All'],
                 MaxNumberOfMessages=10,
                 WaitTimeSeconds=5
@@ -96,7 +96,7 @@ def send_videos_from_bot_queue(sqs_queue_client2, bucket_name):
                     video_presigned_url = generate_presigned_url(video_filename, bucket_name, None)
                     telegram_api_send_single_message(chat_id, f'The following download link will be available for the next few minutes: {video_presigned_url}')
                     # delete message from the queue after it was handled
-                    response = sqs_queue_client2.delete_messages(Entries=[{
+                    response = worker_to_bot_queue.delete_messages(Entries=[{
                         'Id': msg.message_id,
                         'ReceiptHandle': msg.receipt_handle
                     }])

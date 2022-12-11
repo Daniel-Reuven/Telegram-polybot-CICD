@@ -15,7 +15,7 @@ pipeline {
             steps {
                 sh '''
                 aws ecr get-login-password --region eu-central-1 | docker login --username AWS --password-stdin $REGISTRY_URL
-                docker build -t $IMAGE_NAME:$IMAGE_TAG . -f services/bot/Dockerfile
+                docker build -t $IMAGE_NAME:$IMAGE_TAG . -f services/bot/Dockerfile --label "appdev=daniel-reuven"
                 docker tag $IMAGE_NAME:$IMAGE_TAG $REGISTRY_URL/$IMAGE_NAME:$IMAGE_TAG
                 docker push $REGISTRY_URL/$IMAGE_NAME:$IMAGE_TAG
                 '''
@@ -23,7 +23,7 @@ pipeline {
             post {
                 always {
                     sh '''
-                       docker image prune -f --filter "label=app=bot"
+                       docker image prune -f --filter "label=appdev=daniel-reuven"
                     '''
                 }
             }
