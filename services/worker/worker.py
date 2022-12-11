@@ -20,7 +20,7 @@ def main():
                 video_filename = download_youtube_video_to_s3(msg.body, s3_bucket_name)
                 chat_id = msg.message_attributes.get('chat_id').get('StringValue')
                 response2 = worker_to_bot_queue.send_message(
-                    MessageBody=video_filename[0],
+                    MessageBody=video_filename,
                     MessageAttributes={'chat_id': {'StringValue': chat_id, 'DataType': 'String'}
                                        }
                 )

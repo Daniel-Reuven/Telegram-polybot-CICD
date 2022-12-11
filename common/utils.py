@@ -50,12 +50,12 @@ def download_youtube_video_to_s3(yt_link, s3_bucket_name):
                     print(f"Renaming file {folderogfilename} to {folderfixfilename}")
                     os.rename(folderogfilename, folderfixfilename)
                     # Upload the video to S3 bucket-folder and remove from local storage.
-                    upload_file(folderfixfilename, s3_bucket_name)
+                    upload_file(filenamefix, s3_bucket_name)
                     os.remove(folderfixfilename)
                     return filenamefix
                 else:
                     # Upload the video to S3 bucket-folder and remove from local storage.
-                    upload_file(folderfixfilename, s3_bucket_name)
+                    upload_file(filenamefix, s3_bucket_name)
                     os.remove(folderfixfilename)
                     return filenamefix
             else:  # File exists in S3 bucket-folder, no download needed.
@@ -134,7 +134,7 @@ def check_s3_file(key_filename, s3_bucket_name):
 
 def upload_file(key_filename, bucket, object_name=None):
     # Function to upload file(path) to S3 bucket
-    s3_prefix = key_filename
+    s3_prefix = 'ytdlAppData/' + key_filename
     # Upload the file
     s3_client = boto3.client('s3')
     # If S3 object_name was not specified, use key_filename
