@@ -49,13 +49,14 @@ def download_youtube_video_to_s3(yt_link, s3_bucket_name):
                     # Rename the video
                     print(f"Renaming file {folderogfilename} to {folderfixfilename}")
                     os.rename(folderogfilename, folderfixfilename)
+                    sleep(1)
                     # Upload the video to S3 bucket-folder and remove from local storage.
-                    upload_file(filenamefix, s3_bucket_name)
+                    upload_file(folderfixfilename, s3_bucket_name)
                     os.remove(folderfixfilename)
                     return filenamefix
                 else:
                     # Upload the video to S3 bucket-folder and remove from local storage.
-                    upload_file(filenamefix, s3_bucket_name)
+                    upload_file(folderfixfilename, s3_bucket_name)
                     os.remove(folderfixfilename)
                     return filenamefix
             else:  # File exists in S3 bucket-folder, no download needed.
@@ -94,16 +95,26 @@ def send_videos_from_bot_queue(worker_to_bot_queue, bucket_name):
                     logger.info(f'processing message {msg}')
                     video_filename = msg.body
                     logger.info(f'{video_filename} = filename')
-                    chat_id = msg.message_attributes.get('chat_id').get('StringValue')
-                    video_presigned_url = generate_presigned_url(video_filename, bucket_name, None)
-                    telegram_api_send_single_message(chat_id, f'The following download link will be available for the next few minutes: {video_presigned_url}')
-                    # delete message from the queue after it was handled
-                    response = worker_to_bot_queue.delete_messages(Entries=[{
-                        'Id': msg.message_id,
-                        'ReceiptHandle': msg.receipt_handle
-                    }])
-                    if 'Successful' in response:
-                        logger.info(f'msg {msg} has been handled successfully')
+                    if video_filename == "Error: Server error has occurred":
+                        chat_id = msg.message_attributes.get('chat_id').get('StringValue')
+                        video_presigned_url = generate_presigned_url(video_filename, bucket_name, None)
+                        telegram_api_send_single_message(chat_id, f'The following download link will be available for the next few minutes: {video_presigned_url}')
+                        # delete message from the queue after it was handled
+                        response = worker_to_bot_queue.delete_messages(Entries=[{
+                            'Id': msg.message_id,
+                            'ReceiptHandle': msg.receipt_handle
+                        }])
+                        if 'Successful' in response:
+                            logger.info(f'msg {msg} has been handled successfully')
+                    else:
+                        telegram_api_send_single_message(chat_id, f'There was an error trying to complete your request.')
+                        # delete message from the queue after it was handled
+                        response = worker_to_bot_queue.delete_messages(Entries=[{
+                            'Id': msg.message_id,
+                            'ReceiptHandle': msg.receipt_handle
+                        }])
+                        if 'Successful' in response:
+                            logger.info(f'msg {msg} has been handled successfully')
                 logger.info(f'file has been downloaded')
         except botocore.exceptions.ClientError as err:
             logger.exception(f"Couldn't receive messages {err}")
@@ -134,7 +145,7 @@ def check_s3_file(key_filename, s3_bucket_name):
 
 def upload_file(key_filename, bucket, object_name=None):
     # Function to upload file(path) to S3 bucket
-    s3_prefix = 'ytdlAppData/' + key_filename
+    s3_prefix = key_filename
     # Upload the file
     s3_client = boto3.client('s3')
     # If S3 object_name was not specified, use key_filename
