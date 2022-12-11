@@ -180,7 +180,7 @@ def generate_presigned_url(key_filename, bucket, object_name=None):
 
 def telegram_api_send_single_message(chat_id, text):
     # Send 
-    with open('.telegramToken') as f:
+    with open('secrets/.telegramToken') as f:
         _token = f.read()
     url = f"https://api.telegram.org/bot{_token}/sendMessage"
     params = {

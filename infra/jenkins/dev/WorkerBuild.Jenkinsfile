@@ -23,7 +23,7 @@ pipeline {
             post {
                 always {
                     sh '''
-                       docker image prune -f --filter "label=appdev=daniel-reuven"
+                       docker image prune -f --filter "label=codedev=daniel-reuven"
                     '''
                 }
             }

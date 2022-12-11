@@ -39,7 +39,7 @@ def main():
 
 
 if __name__ == '__main__':
-    with open('../../common/config.json') as f:
+    with open('common/config.json') as f:
         config = json.load(f)
 
     sqs = boto3.resource('sqs', region_name=config.get('aws_region'))
