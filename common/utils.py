@@ -91,7 +91,7 @@ def send_videos_from_bot_queue(worker_to_bot_queue, bucket_name):
                 for msg in messages:
                     logger.info(f'processing message {msg}')
                     video_filename = msg.body
-                    print("This should be the filename clean" + video_filename)
+                    logger.info(f'{video_filename} = filename')
                     chat_id = msg.message_attributes.get('chat_id').get('StringValue')
                     video_presigned_url = generate_presigned_url(video_filename, bucket_name, None)
                     telegram_api_send_single_message(chat_id, f'The following download link will be available for the next few minutes: {video_presigned_url}')
