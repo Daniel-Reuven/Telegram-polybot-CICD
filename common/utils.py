@@ -64,7 +64,8 @@ def download_youtube_video_to_s3(yt_link, s3_bucket_name):
                     # If the video exists locally, delete.
                     os.remove(folderfixfilename)
                 return filenamefix
-    except:
+    except Exception as e:
+        logger.error(e)
         return "Error: Server error has occurred"
 
 
