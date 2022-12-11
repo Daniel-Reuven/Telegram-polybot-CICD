@@ -52,13 +52,13 @@ def download_youtube_video_to_s3(yt_link, s3_bucket_name):
                     sleep(1)
                     # Upload the video to S3 bucket-folder and remove from local storage.
                     logger.info(f"Uploading {folderfixfilename} to S3 bucket {s3_bucket_name}")
-                    upload_file(folderfixfilename, s3_bucket_name)
+                    upload_file(filenamefix, s3_bucket_name)
                     os.remove(folderfixfilename)
                     return filenamefix
                 else:
                     # Upload the video to S3 bucket-folder and remove from local storage.
                     logger.info(f"Uploading {folderfixfilename} to S3 bucket {s3_bucket_name}")
-                    upload_file(folderfixfilename, s3_bucket_name)
+                    upload_file(filenamefix, s3_bucket_name)
                     os.remove(folderfixfilename)
                     return filenamefix
             else:  # File exists in S3 bucket-folder, no download needed.
