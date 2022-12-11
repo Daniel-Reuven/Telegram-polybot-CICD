@@ -149,9 +149,7 @@ def check_s3_file(key_filename, s3_bucket_name):
 
 def upload_file(key_filename, bucket, object_name=None):
     # Function to upload file(path) to S3 bucket
-    s3_prefix = 'ytdlAppData/' + key_filename
-    # Fix file name:
-    key_filename = key_filename.replace("ytdlAppData/", "")
+    s3_prefix = key_filename
     # Upload the file
     s3_client = boto3.client('s3')
     # If S3 object_name was not specified, use key_filename
