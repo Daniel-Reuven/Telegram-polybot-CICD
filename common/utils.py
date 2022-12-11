@@ -91,6 +91,7 @@ def send_videos_from_bot_queue(worker_to_bot_queue, bucket_name):
                 for msg in messages:
                     logger.info(f'processing message {msg}')
                     video_filename = msg.body
+                    print("This should be the filename clean" + video_filename)
                     chat_id = msg.message_attributes.get('chat_id').get('StringValue')
                     video_presigned_url = generate_presigned_url(video_filename, bucket_name, None)
                     telegram_api_send_single_message(chat_id, f'The following download link will be available for the next few minutes: {video_presigned_url}')
@@ -164,7 +165,6 @@ def download_file(key_filename, bucket, object_name=None):
 def generate_presigned_url(key_filename, bucket, object_name=None):
     # Function to generated expiring presigned URL for requested file(path) from S3 bucket
     s3_prefix = 'ytdlAppData/' + key_filename
-    # Upload the file
     s3_client = boto3.client("s3", 'eu-central-1', config=Config(signature_version='s3v4'))
     # If S3 object_name was not specified, use key_filename
     if object_name is None:
