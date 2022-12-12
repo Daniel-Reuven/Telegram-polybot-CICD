@@ -111,7 +111,8 @@ def send_videos_from_bot_queue(worker_to_bot_queue, bucket_name):
                     else:
                         chat_id = msg.message_attributes.get('chat_id').get('StringValue')
                         video_presigned_url = generate_presigned_url(video_filename, bucket_name, None)
-                        telegram_api_send_single_message(chat_id, f'The following download link will be available for the next few minutes: {video_presigned_url}')
+                        temp_string = f'<a href = "{video_presigned_url}">Link</a>'
+                        telegram_api_send_single_message(chat_id, f'The following download link will be available for the next few minutes: {temp_string}')
                         # delete message from the queue after it was handled
                         response = worker_to_bot_queue.delete_messages(Entries=[{
                             'Id': msg.message_id,
@@ -217,6 +218,7 @@ def telegram_api_send_single_message(chat_id, text):
     params = {
         "chat_id": chat_id,
         "text": text,
+        "parse_mode": "HTML",
     }
     resp = requests.get(url, params=params)
     # Throw an exception if Telegram API fails
