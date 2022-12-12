@@ -36,7 +36,8 @@ def download_youtube_video_to_s3(yt_link, s3_bucket_name):
             # Manipulate filename to remove unwanted characters
             folderogfilename = 'ytdlAppData/' + video['id'] + '.mp4'
             filenameog = video['title'] + '.mp4'
-            filenamefix = re.sub(r'[^a-zA-Z0-9\u0590-\u05FF\u0627-\u064a\u0400-\u04FF \n\.-]', '', filenameog)
+            filenamefix = re.sub(r'[^a-zA-Z0-9\u0590-\u05FF\u0627-\u064a\u0400-\u04FF \n\.-]', ' ', filenameog)
+            filenamefix = filenamefix.replace("  ", " ")
             filenamefix = filenamefix.replace("  ", " ")
             folderfixfilename = 'ytdlAppData/' + filenamefix
             # check aws s3 bucket for the video
