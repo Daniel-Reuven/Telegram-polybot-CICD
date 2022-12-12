@@ -6,15 +6,12 @@ pipeline {
             args  '--user root -v /var/run/docker.sock:/var/run/docker.sock'
         }
     }
-
     environment {
         APP_ENV = "dev"
     }
-
     parameters {
         string(name: 'WORKER_IMAGE_NAME')
     }
-
     stages {
         stage('Worker Deploy') {
             steps {

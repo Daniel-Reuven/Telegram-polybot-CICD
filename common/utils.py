@@ -16,9 +16,10 @@ from validators import ValidationFailure
 def download_youtube_video_to_s3(yt_link, s3_bucket_name):
     try:
         # Parameters for youtube_dl use
+        # Max quality set to 1080p, to avoid large filesize
         ydl = {
             'noplaylist': 'True',
-            'format': 'bestvideo[height<=2160][ext=mp4]+bestaudio[ext=m4a]/best[ext=mp4]/best',
+            'format': 'bestvideo[height<=1080][ext=mp4]+bestaudio[ext=m4a]/best[ext=mp4]/best',
             'writethumbnail': True,
             'postprocessors': [{
                 'key': 'EmbedThumbnail',
@@ -38,8 +39,6 @@ def download_youtube_video_to_s3(yt_link, s3_bucket_name):
             filenamefix = re.sub(r'[^a-zA-Z0-9\u0590-\u05FF\u0627-\u064a\u0400-\u04FF \n\.-]', '', filenameog)
             filenamefix = filenamefix.replace("  ", " ")
             folderfixfilename = 'ytdlAppData/' + filenamefix
-            logger.info(f'{filenamefix} = filename')
-            logger.info(f'{folderfixfilename} = folder + filename')
             # check aws s3 bucket for the video
             if not (check_s3_file(filenamefix, s3_bucket_name)):
                 # check locally for the video
@@ -57,6 +56,7 @@ def download_youtube_video_to_s3(yt_link, s3_bucket_name):
                     return filenamefix
                 else:
                     # Upload the video to S3 bucket-folder and remove from local storage.
+                    # added but not implemented code to check to compare local file and s3 file sizes and replace if not matching with the local copy.
                     logger.info(f"Uploading {folderfixfilename} to S3 bucket {s3_bucket_name}")
                     upload_file(folderfixfilename, s3_bucket_name)
                     os.remove(folderfixfilename)
@@ -145,6 +145,21 @@ def check_s3_file(key_filename, s3_bucket_name):
     else:
         # The object does exist.
         return True
+
+
+def check_s3_object_filesize(key_filename, s3_bucket_name):
+    # Function to check if requested file(path) exists in S3 bucket
+    s3_prefix = 'ytdlAppData/' + key_filename
+    s3 = boto3.resource('s3')
+    try:
+        response = s3.head_object(s3_bucket_name, key_filename)
+        size = response['ContentLength']
+    except ClientError as e:
+        logger.error(e)
+        raise
+    else:
+        # Return the file size of the object
+        return size
 
 
 def upload_file(key_filename, bucket, object_name=None):
