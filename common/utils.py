@@ -96,7 +96,7 @@ def send_videos_from_bot_queue(worker_to_bot_queue, bucket_name):
             if messages:
                 logger.info(f'Attempting to send video to user via chat')
                 for msg in messages:
-                    logger.info(f'processing message {msg}')
+                    logger.info(f'processing message {msg} - {dtnow}')
                     video_filename = msg.body
                     logger.info(f'{video_filename} = filename')
                     if video_filename == "Error: Server error has occurred":
@@ -126,7 +126,7 @@ def send_videos_from_bot_queue(worker_to_bot_queue, bucket_name):
             logger.exception(f"Couldn't receive messages {err}")
         # every 60 seconds update log to show that thread is running.
         if i == 6:
-            logger.info(f'Thread is running as of {dtnow}, checking queue every 10 seconds, this message repeats every 60 seconds')
+            logger.info(f'Process is running as of {dtnow}, checking queue every 10 seconds, this message repeats every 60 seconds')
             i = 0
         sleep(10)
 

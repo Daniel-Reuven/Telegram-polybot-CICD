@@ -3,12 +3,16 @@ import time
 import boto3
 import botocore
 import os
+from datetime import datetime
 from loguru import logger
 from common.utils import download_youtube_video_to_s3
 
 
 def main():
+    i = 0
     while True:
+        dtnow = datetime.now().strftime("%d/%m/%Y - %H:%M:%S")
+        i += 1
         try:
             messages = queue.receive_messages(
                 MessageAttributeNames=['All'],
@@ -34,8 +38,10 @@ def main():
                     logger.info(f'msg {msg} has been handled successfully')
         except botocore.exceptions.ClientError as err:
             logger.exception(f"Couldn't receive messages {err}")
-
-        logger.info(f'Waiting for new msgs')
+        logger.info(f'Waiting for new msgs - {dtnow}')
+        if i == 6:
+            logger.info(f'Process is running as of {dtnow}, checking queue every 10 seconds, this message repeats every 60 seconds')
+            i = 0
         time.sleep(10)
 
 
