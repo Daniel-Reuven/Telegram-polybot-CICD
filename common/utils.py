@@ -5,6 +5,7 @@ import requests
 import yt_dlp
 import re
 import validators
+from urllib import parse
 from botocore.exceptions import ClientError
 from botocore.config import Config
 from loguru import logger
@@ -167,13 +168,14 @@ def check_s3_object_filesize(key_filename, s3_bucket_name):
 def upload_file(key_filename, bucket, object_name=None):
     # Function to upload file(path) to S3 bucket
     s3_prefix = key_filename
+    tags = {"Cached": "Yes"}
     # Upload the file
     s3_client = boto3.client('s3')
     # If S3 object_name was not specified, use key_filename
     if object_name is None:
         object_name = s3_prefix
     try:
-        response = s3_client.upload_file(key_filename, bucket, s3_prefix)
+        response = s3_client.upload_file(key_filename, bucket, s3_prefix, ExtraArgs={"Tagging": parse.urlencode(tags)})
     except ClientError as e:
         logger.error(e)
         return False
