@@ -177,7 +177,7 @@ def upload_file(key_filename, bucket, object_name=None):
         object_name = s3_prefix
     try:
         response = s3_client.upload_file(key_filename, bucket, s3_prefix, ExtraArgs={"Tagging": parse.urlencode(tags), "ContentDisposition": "attachment"})
-        logger.info(f'uploaded {s3_prefix} with tags: {tags}')
+        logger.info(f'uploaded {s3_prefix} with tags: {tags} and metadata "ContentDisposition": "attachment" to force download')
     except ClientError as e:
         logger.error(e)
         return False
