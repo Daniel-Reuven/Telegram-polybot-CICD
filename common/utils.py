@@ -93,11 +93,11 @@ def send_videos_from_bot_queue(worker_to_bot_queue, bucket_name):
                 MaxNumberOfMessages=10,
                 WaitTimeSeconds=5
             )
-            logger.info(f'msgs received from queue: {len(messages)}')
+            logger.info(f'msgs received from queue: {len(messages)} - {dtnow}')
             if messages:
                 logger.info(f'Attempting to send video to user via chat')
                 for msg in messages:
-                    logger.info(f'processing message {msg} - {dtnow}')
+                    logger.info(f'processing message {msg}')
                     video_filename = msg.body
                     logger.info(f'{video_filename} = filename')
                     if video_filename == "Error: Server error has occurred":
@@ -127,7 +127,8 @@ def send_videos_from_bot_queue(worker_to_bot_queue, bucket_name):
             logger.exception(f"Couldn't receive messages {err}")
         # every 60 seconds update log to show that thread is running.
         if i == 6:
-            logger.info(f'Process is running as of {dtnow}, checking queue every 10 seconds, this message repeats every 60 seconds')
+            logger.info(f'Process is running as of {dtnow}, checking queue every 10 seconds, this message repeats every 60 seconds(5-sec delay for each request running every '
+                        f'10-sec)')
             i = 0
         sleep(10)
 
@@ -176,6 +177,7 @@ def upload_file(key_filename, bucket, object_name=None):
         object_name = s3_prefix
     try:
         response = s3_client.upload_file(key_filename, bucket, s3_prefix, ExtraArgs={"Tagging": parse.urlencode(tags)})
+        logger.info(f'uploaded {s3_prefix} with tags: {tags}')
     except ClientError as e:
         logger.error(e)
         return False
@@ -207,6 +209,7 @@ def generate_presigned_url(key_filename, bucket, object_name=None):
         object_name = s3_prefix
     try:
         response = s3_client.generate_presigned_url('get_object', Params={'Bucket': bucket, 'Key': s3_prefix}, ExpiresIn=3600)
+        logger.info(f'generated presigned URL for {s3_prefix}')
     except ClientError as e:
         logger.error(e)
         return False
@@ -224,5 +227,6 @@ def telegram_api_send_single_message(chat_id, text):
         "parse_mode": "HTML",
     }
     resp = requests.get(url, params=params)
+    logger.info(f'Attempting to send msg to customer')
     # Throw an exception if Telegram API fails
     resp.raise_for_status()
