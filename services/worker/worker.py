@@ -28,7 +28,7 @@ def main():
                     MessageAttributes={'chat_id': {'StringValue': chat_id, 'DataType': 'String'}
                                        }
                 )
-                logger.info(f'msg {response2.get("MessageId")} has been sent to queue 2')
+                logger.info(f'msg {response2.get("MessageId")} has been sent to bot queue')
                 # delete message from the queue after it was handled
                 response = queue.delete_messages(Entries=[{
                     'Id': msg.message_id,

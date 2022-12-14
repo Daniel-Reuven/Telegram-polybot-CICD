@@ -95,7 +95,7 @@ def send_videos_from_bot_queue(worker_to_bot_queue, bucket_name):
             )
             logger.info(f'msgs received from queue: {len(messages)} - {dtnow}')
             if messages:
-                logger.info(f'Attempting to send video to user via chat')
+                logger.info(f'Attempting to process msg to customer')
                 for msg in messages:
                     logger.info(f'processing message {msg}')
                     video_filename = msg.body
