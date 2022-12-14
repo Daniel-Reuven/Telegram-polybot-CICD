@@ -176,7 +176,7 @@ def upload_file(key_filename, bucket, object_name=None):
     if object_name is None:
         object_name = s3_prefix
     try:
-        response = s3_client.upload_file(key_filename, bucket, s3_prefix, ExtraArgs={"Tagging": parse.urlencode(tags)})
+        response = s3_client.upload_file(key_filename, bucket, s3_prefix, ExtraArgs={"Tagging": parse.urlencode(tags), "Metadata": {"Content-Disposition:attachment"}})
         logger.info(f'uploaded {s3_prefix} with tags: {tags}')
     except ClientError as e:
         logger.error(e)
