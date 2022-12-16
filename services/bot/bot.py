@@ -68,35 +68,39 @@ class YouTubeVideoDownloaderBot(Bot):
             else:
                 # Handle "/setquality" mode
                 if update.message.text.lower() == '/setquality':
-                    qfile_flag = False
-                    temp = inbound_text.split(" ", 1)[1]
-                    logger.info(f'Admin command detected, attempting to comply'.format())
-                    self.send_text(update, f'Admin command detected, attempting to comply')
-                    sleep(1)
-                    with open('common/quality_file.json') as f2:
-                        qfile_data = json.load(f2)
-                    if temp == 'fhd':
-                        if qfile_data["quality"] != 1080:
-                            qfile_data["quality"] = 1080
-                            qfile_flag = True
-                    else:
-                        if temp == 'qhd':
-                            if qfile_data["quality"] != 2160:
-                                qfile_data["quality"] = 2160
+                    if chat_id == dev_chat_id:
+                        qfile_flag = False
+                        temp = inbound_text.split(" ", 1)[1]
+                        logger.info(f'Admin command detected, attempting to comply'.format())
+                        self.send_text(update, f'Admin command detected, attempting to comply')
+                        sleep(1)
+                        with open('common/quality_file.json') as f2:
+                            qfile_data = json.load(f2)
+                        if temp == 'fhd':
+                            if qfile_data["quality"] != 1080:
+                                qfile_data["quality"] = 1080
                                 qfile_flag = True
-                    if qfile_flag:
-                        try:
-                            with open('common/quality_file.json') as f2_w:
-                                json.dump(qfile_data, f2_w)
-                            f2_w.close()
-                            local_file = 'common/quality_file.json'
-                            s3_path = 'quality_file.json'
-                            upload_file2(config.get('bucket_name'), local_file, s3_path)
-                            logger.info(f'Admin command successfully executed'.format())
-                            self.send_text(update, f'Admin command successfully executed')
-                            qfile_flag = False
-                        except Exception as e:
-                            logger.error(e)
+                        else:
+                            if temp == 'qhd':
+                                if qfile_data["quality"] != 2160:
+                                    qfile_data["quality"] = 2160
+                                    qfile_flag = True
+                        if qfile_flag:
+                            try:
+                                with open('common/quality_file.json') as f2_w:
+                                    json.dump(qfile_data, f2_w)
+                                f2_w.close()
+                                local_file = 'common/quality_file.json'
+                                s3_path = 'quality_file.json'
+                                upload_file2(config.get('bucket_name'), local_file, s3_path)
+                                logger.info(f'Admin command successfully executed'.format())
+                                self.send_text(update, f'Admin command successfully executed')
+                                qfile_flag = False
+                            except Exception as e:
+                                logger.error(e)
+                    else:
+                        self.send_text(update, f'you are not allowed to use admin commands.')
+                        logger.warning('admin command detected from non admin user'.format())
                 else:
                     # Handle "free-text" mode
                     # Check if user input is a valid URL for YT-DLP
@@ -123,6 +127,10 @@ if __name__ == '__main__':
         _token = f.read()
     with open('common/config.json') as f:
         config = json.load(f)
+    with open('secret.json') as json_handler:
+        secret_data = json.load(json_handler)
+    dev_chat_id = secret_data["dev_chat_id"]
+    json_handler.close()
     sqs = boto3.resource('sqs', region_name=config.get('aws_region'))
     bot_to_worker_queue = sqs.get_queue_by_name(QueueName=config.get('bot_to_worker_queue_name'))
     worker_to_bot_queue = sqs.get_queue_by_name(QueueName=config.get('worker_to_bot_queue_name'))
