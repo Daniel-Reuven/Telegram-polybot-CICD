@@ -14,13 +14,14 @@ from datetime import datetime
 from validators import ValidationFailure
 
 
-def download_youtube_video_to_s3(yt_link, s3_bucket_name):
+def download_youtube_video_to_s3(yt_link, s3_bucket_name, quality_var):
     try:
         # Parameters for youtube_dl use
         # Max quality set to 1080p, to avoid large filesize
+        qformat = f'bestvideo[height<={quality_var}][ext=mp4]+bestaudio[ext=m4a]/best[ext=mp4]/best'
         ydl = {
             'noplaylist': 'True',
-            'format': 'bestvideo[height<=1080][ext=mp4]+bestaudio[ext=m4a]/best[ext=mp4]/best',
+            'format': qformat,
             'writethumbnail': True,
             'postprocessors': [{
                 'key': 'EmbedThumbnail',
@@ -46,26 +47,26 @@ def download_youtube_video_to_s3(yt_link, s3_bucket_name):
                 # check locally for the video
                 if not (os.path.isfile(folderfixfilename)):
                     # Download the video
-                    video = ydl.extract_info(yt_link, download=True)
+                    ydl.extract_info(yt_link, download=True)
                     # Rename the video
                     logger.info(f"Renaming file {folderogfilename} to {folderfixfilename}")
                     os.rename(folderogfilename, folderfixfilename)
                     sleep(1)
-                    # Upload the video to S3 bucket-folder and remove from local storage.
+                    # Upload the video to S3 bucket-folder and remove from local storage
                     logger.info(f"Uploading {folderfixfilename} to S3 bucket {s3_bucket_name}")
                     upload_file(folderfixfilename, s3_bucket_name)
                     os.remove(folderfixfilename)
                     return filenamefix
                 else:
-                    # Upload the video to S3 bucket-folder and remove from local storage.
+                    # Upload the video to S3 bucket-folder and remove from local storage
                     # added but not implemented code to check to compare local file and s3 file sizes and replace if not matching with the local copy.
                     logger.info(f"Uploading {folderfixfilename} to S3 bucket {s3_bucket_name}")
                     upload_file(folderfixfilename, s3_bucket_name)
                     os.remove(folderfixfilename)
                     return filenamefix
-            else:  # File exists in S3 bucket-folder, no download needed.
+            else:  # File exists in S3 bucket-folder, no download needed
                 if os.path.isfile(folderfixfilename):
-                    # If the video exists locally, delete.
+                    # If the video exists locally, delete
                     os.remove(folderfixfilename)
                 return filenamefix
     except Exception as e:
@@ -73,17 +74,9 @@ def download_youtube_video_to_s3(yt_link, s3_bucket_name):
         return "Error: Server error has occurred"
 
 
-def is_string_an_url(url_string: str) -> bool:
-    # Function to validate if input is a URL
-    result = validators.url(url_string)
-    if isinstance(result, ValidationFailure):
-        return False
-    return result
-
-
 def send_videos_from_bot_queue(worker_to_bot_queue, bucket_name):
     i = 0
-    # Start looping with sleep every 10 seconds to check for messages in queue.
+    # Start looping with sleep every 10 seconds to check for messages in queue
     while True:
         dtnow = datetime.now().strftime("%d/%m/%Y - %H:%M:%S")
         i += 1
@@ -125,12 +118,33 @@ def send_videos_from_bot_queue(worker_to_bot_queue, bucket_name):
                         logger.info(f'file has been downloaded')
         except botocore.exceptions.ClientError as err:
             logger.exception(f"Couldn't receive messages {err}")
-        # every 60 seconds update log to show that thread is running.
+        # every 60 seconds update log to show that thread is running
         if i == 6:
             logger.info(f'Process is running as of {dtnow}, checking queue every 10 seconds, this message repeats every 60 seconds(5-sec delay for each request running every '
                         f'10-sec)')
             i = 0
         sleep(10)
+
+
+def sync_quality_file(s3_bucket_name):
+    i = 0
+    # Start looping with sleep every 15 minutes
+    while True:
+        dt_now = datetime.now().strftime("%d/%m/%Y - %H:%M:%S")
+        dt_file = check_s3_file_modify_date('quality_file.json', s3_bucket_name)
+        if dt_file >= (dt_now - datetime.timedelta(minutes=15)):
+            download_file2('quality_file.json', s3_bucket_name)
+            logger.info('Updated to quality file detected, attempting to update settings.')
+        logger.info(f'Sync process is running as of {dt_now}, checking for changes every 15 minutes.')
+        sleep(900)
+
+
+def is_string_an_url(url_string: str) -> bool:
+    # Function to validate if input is a URL
+    result = validators.url(url_string)
+    if isinstance(result, ValidationFailure):
+        return False
+    return result
 
 
 def check_s3_file(key_filename, s3_bucket_name):
@@ -151,9 +165,21 @@ def check_s3_file(key_filename, s3_bucket_name):
         return True
 
 
+def check_s3_file_modify_date(s3_prefix, s3_bucket_name):
+    # Function to check if requested file has been modified and return last modified date.
+    s3 = boto3.resource('s3')
+    try:
+        response = s3.head_object(s3_bucket_name, s3_prefix)
+        datetime_value = response["LastModified"]
+    except botocore.exceptions.ClientError as e:
+        return e
+    else:
+        # Return the last modified date of the file
+        return datetime_value
+
+
 def check_s3_object_filesize(key_filename, s3_bucket_name):
     # Function to check if requested file(path) exists in S3 bucket
-    s3_prefix = 'ytdlAppData/' + key_filename
     s3 = boto3.resource('s3')
     try:
         response = s3.head_object(s3_bucket_name, key_filename)
@@ -184,20 +210,41 @@ def upload_file(key_filename, bucket, object_name=None):
     return True
 
 
+def upload_file2(bucket_name,local_file, s3_path):
+    # Function to upload file(path) to S3 bucket
+    s3 = boto3.resource('s3')
+    try:
+        s3.Bucket(bucket_name).upload_file(local_file, s3_path)
+        logger.info(f'uploaded modified quality file')
+    except ClientError as e:
+        logger.error(e)
+        return False
+    return True
+
+
 def download_file(key_filename, bucket, object_name=None):
     # Function to download requested file(path) from S3 bucket
     s3_prefix = 'ytdlAppData/' + key_filename
-    # Upload the file
     s3_client = boto3.client('s3')
     # If S3 object_name was not specified, use key_filename
     if object_name is None:
         object_name = s3_prefix
     try:
-        response = s3_client.download_file(bucket, object_name, s3_prefix)
+        s3_client.download_file(bucket, object_name, s3_prefix)
     except ClientError as e:
         logger.error(e)
         return False
     return True
+
+
+def download_file2(key_filename, bucket):
+    # Function to download requested file(path) from S3 bucket
+    s3_prefix = key_filename
+    s3_client = boto3.client('s3')
+    try:
+        s3_client.download_file(bucket, key_filename, s3_prefix)
+    except ClientError as e:
+        logger.error(e)
 
 
 def generate_presigned_url(key_filename, bucket, object_name=None):

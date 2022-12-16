@@ -1,17 +1,28 @@
 import json
 import time
+import threading
 import boto3
-import botocore
 import os
 from datetime import datetime
 from loguru import logger
-from common.utils import download_youtube_video_to_s3
+from common.utils import download_youtube_video_to_s3, sync_quality_file
 
 
 def main():
+    threading.Thread(
+        target=sync_quality_file,
+        args=(worker_to_bot_queue, config.get('bucket_name'))
+    ).start()
     i = 0
     while True:
-        dtnow = datetime.now().strftime("%d/%m/%Y - %H:%M:%S")
+        dt_now = datetime.now().strftime("%d/%m/%Y - %H:%M:%S")
+        if os.path.getmtime('common/quality_file.json') > quality_file:
+            # Reinitialize the quality file
+            with open('common/quality_file.json') as f3:
+                qconfig = json.load(f3)
+            quality_var = qconfig.get('quality')
+            quality_file = os.path.getmtime('common/quality_file.json')
+            f3.close()
         i += 1
         try:
             messages = queue.receive_messages(
@@ -21,7 +32,7 @@ def main():
             )
             for msg in messages:
                 logger.info(f'processing message {msg}')
-                video_filename = download_youtube_video_to_s3(msg.body, s3_bucket_name)
+                video_filename = download_youtube_video_to_s3(msg.body, s3_bucket_name, quality_var)
                 chat_id = msg.message_attributes.get('chat_id').get('StringValue')
                 response2 = worker_to_bot_queue.send_message(
                     MessageBody=video_filename,
@@ -36,11 +47,11 @@ def main():
                 }])
                 if 'Successful' in response:
                     logger.info(f'msg {msg} has been handled successfully')
-        except botocore.exceptions.ClientError as err:
+        except Exception as err:
             logger.exception(f"Couldn't receive messages {err}")
-        logger.info(f'Waiting for new msgs - {dtnow}')
+        logger.info(f'Waiting for new msgs - {dt_now}')
         if i == 6:
-            logger.info(f'Process is running as of {dtnow}, checking queue every 10 seconds, this message repeats every 60 seconds')
+            logger.info(f'Process is running as of {dt_now}, checking queue every 10 seconds, this message repeats every 60 seconds')
             i = 0
         time.sleep(10)
 
@@ -48,11 +59,16 @@ def main():
 if __name__ == '__main__':
     with open('common/config.json') as f:
         config = json.load(f)
-
     sqs = boto3.resource('sqs', region_name=config.get('aws_region'))
     queue = sqs.get_queue_by_name(QueueName=config.get('bot_to_worker_queue_name'))
     worker_to_bot_queue = sqs.get_queue_by_name(QueueName=config.get('worker_to_bot_queue_name'))
     s3_bucket_name = config.get('bucket_name')
+    # # Initialize quality file
+    with open('common/quality_file.json') as f2:
+        qconfig = json.load(f2)
+    quality_var = qconfig.get('quality')
+    quality_file = os.path.getmtime('common/quality_file.json')
+    f2.close()
     cwd = os.getcwd()
     path = f"{cwd}/ytdlAppData"
     # Check whether the specified path exists or not
