@@ -3,12 +3,13 @@ import time
 import threading
 import boto3
 import os
-from datetime import datetime
+import datetime
 from loguru import logger
 from common.utils import download_youtube_video_to_s3, sync_quality_file, initial_download
 
 
 def main(quality_file):
+    print(config.get('bucket_name'))
     threading.Thread(
         target=sync_quality_file, args=(config.get('bucket_name'))
     ).start()
