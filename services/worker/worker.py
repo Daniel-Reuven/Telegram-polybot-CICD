@@ -10,13 +10,14 @@ from common.utils import download_youtube_video_to_s3, sync_quality_file, initia
 
 def main(quality_file):
     threading.Thread(
-        target=sync_quality_file,
-        args=(config.get('bucket_name'))
+        target=sync_quality_file, args=(config.get('bucket_name'))
     ).start()
     i = 0
     while True:
-        dt_now = datetime.now().strftime("%d/%m/%Y - %H:%M:%S")
-        if os.path.getmtime('common/quality_file.json') > quality_file:
+        dt_now = datetime.now()
+        t = os.path.getmtime('common/quality_file.json')
+        v = datetime.datetime.fromtimestamp(t)
+        if v > quality_file:
             # Reinitialize the quality file
             with open('common/quality_file.json') as f3:
                 qconfig = json.load(f3)
