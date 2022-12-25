@@ -82,10 +82,10 @@ class YouTubeVideoDownloaderBot(Bot):
                         qfile_flag = True
                 if qfile_flag:
                     try:
-                        with open('common/quality_file.json', 'w') as f2_w:
+                        with open('quality_file.json', 'w') as f2_w:
                             json.dump(qfile_data, f2_w)
                         f2_w.close()
-                        local_file = 'common/quality_file.json'
+                        local_file = 'quality_file.json'
                         s3_path = 'quality_file.json'
                         upload_file2(config.get('bucket_name'), local_file, s3_path)
                         logger.info(f'Admin command successfully executed'.format())
