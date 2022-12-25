@@ -125,7 +125,7 @@ if __name__ == '__main__':
         config = json.load(f2)
     f2.close()
     # # Initialize quality file
-    initial_download(config.get('bucket_name'), 'quality_file.json')
+    initial_download(config.get('bucket_name'), 'secret.json')
     sqs = boto3.resource('sqs', region_name=config.get('aws_region'))
     bot_to_worker_queue = sqs.get_queue_by_name(QueueName=config.get('bot_to_worker_queue_name'))
     worker_to_bot_queue = sqs.get_queue_by_name(QueueName=config.get('worker_to_bot_queue_name'))
