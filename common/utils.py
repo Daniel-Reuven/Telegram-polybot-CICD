@@ -138,8 +138,9 @@ def sync_quality_file(s3_bucket_name):
             dt_file = dt_file.replace(tzinfo=utc)
             dt_now = dt_now.replace(tzinfo=utc)
             if dt_file >= (dt_now - timedelta(minutes=15)):
-                download_file2('quality_file.json', s3_bucket_name)
                 logger.info('Updates to quality file detected, attempting to update settings.')
+                download_file2('quality_file.json', s3_bucket_name)
+                logger.info('Successfully updated quality file.')
             logger.info(f'Sync process is running as of {dt_now}, checking for changes every 10 minutes.')
         except Exception as e:
             logger.error(e)

@@ -16,14 +16,14 @@ def main(quality_file, quality_var):
     i = 0
     while True:
         dt_now = datetime.now()
-        t = os.path.getmtime('common/quality_file.json')
+        t = os.path.getmtime('quality_file.json')
         v = datetime.fromtimestamp(t)
         if v > quality_file:
             # Reinitialize the quality file
-            with open('common/quality_file.json') as f3:
+            with open('quality_file.json') as f3:
                 qconfig = json.load(f3)
             quality_var = qconfig.get('quality')
-            quality_file = os.path.getmtime('common/quality_file.json')
+            quality_file = os.path.getmtime('quality_file.json')
             f3.close()
         i += 1
         try:
