@@ -176,13 +176,13 @@ def check_s3_file(key_filename, s3_bucket_name):
 
 def check_s3_file_modify_date(s3_prefix, s3_bucket_name):
     # Function to check if requested file has been modified and return last modified date.
+    logger.info(s3_prefix)
+    logger.info(type(s3_bucket_name))
     try:
-        print(s3_prefix)
-        print(type(s3_bucket_name))
-        datetime_value = boto3.client('s3').head_object(bucket=s3_bucket_name, key=s3_prefix)['LastModified']
+        datetime_value = boto3.client('s3').head_object(Bucket=s3_bucket_name, Key=s3_prefix)['LastModified']
         # convert to datetime
-        print(datetime_value)
-        print(type(datetime_value))
+        logger.info(datetime_value)
+        logger.info(type(datetime_value))
         dt = datetime.fromtimestamp(mktime(datetime_value))
     except botocore.exceptions.ClientError as e:
         logger.error(e)
