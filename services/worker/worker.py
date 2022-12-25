@@ -11,7 +11,7 @@ from common.utils import download_youtube_video_to_s3, sync_quality_file
 def main():
     threading.Thread(
         target=sync_quality_file,
-        args=(worker_to_bot_queue, config.get('bucket_name'))
+        args=(config.get('bucket_name'))
     ).start()
     i = 0
     while True:
@@ -67,6 +67,7 @@ if __name__ == '__main__':
     with open('common/quality_file.json') as f2:
         qconfig = json.load(f2)
     quality_var = qconfig.get('quality')
+
     quality_file = os.path.getmtime('common/quality_file.json')
     f2.close()
     cwd = os.getcwd()
