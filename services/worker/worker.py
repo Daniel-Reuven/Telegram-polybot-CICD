@@ -3,6 +3,7 @@ import time
 import threading
 import boto3
 import os
+import pytz
 from datetime import datetime
 from loguru import logger
 from common.utils import download_youtube_video_to_s3, sync_quality_file, initial_download
@@ -14,10 +15,13 @@ def main(quality_file, quality_var):
         target=sync_quality_file, args=(config.get('bucket_name'),)
     ).start()
     i = 0
+    utc = pytz.UTC
     while True:
         dt_now = datetime.now()
         t = os.path.getmtime('quality_file.json')
         v = datetime.fromtimestamp(t)
+        v = v.replace(tzinfo=utc)
+        quality_file = quality_file.replace(tzinfo=utc)
         if v > quality_file:
             # Reinitialize the quality file
             with open('quality_file.json') as f3:
