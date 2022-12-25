@@ -82,7 +82,7 @@ class YouTubeVideoDownloaderBot(Bot):
                         qfile_flag = True
                 if qfile_flag:
                     try:
-                        with open('common/quality_file.json') as f2_w:
+                        with open('common/quality_file.json', 'w') as f2_w:
                             json.dump(qfile_data, f2_w)
                         f2_w.close()
                         local_file = 'common/quality_file.json'
@@ -93,6 +93,7 @@ class YouTubeVideoDownloaderBot(Bot):
                         qfile_flag = False
                     except Exception as e:
                         logger.error(e)
+                        self.send_text(update, f'Failed to comply')
             else:
                 self.send_text(update, f'you are not allowed to use admin commands.')
                 logger.warning('admin command detected from non admin user'.format())
