@@ -143,6 +143,8 @@ def sync_quality_file(s3_bucket_name):
             logger.info(f'Sync process is running as of {dt_now}, checking for changes every 10 minutes.')
         except Exception as e:
             logger.error(e)
+            logger.info(dt_file.astimezone().tzinfo)
+            logger.info(dt_now.astimezone().tzinfo)
         sleep(60)
 
 
