@@ -63,7 +63,7 @@ class YouTubeVideoDownloaderBot(Bot):
             self.send_text(update, f'Send a video link, get back a download link for that video\n/help - Display help information.')
             logger.info(f'help menu requested'.format())
         # Handle "/setquality" mode
-        elif update.message.text.lower() == '/setquality':
+        elif update.message.text.lower().startswith('/setquality'):
             if chat_id == dev_chat_id:
                 qfile_flag = False
                 temp = inbound_text.split(" ", 1)[1]
