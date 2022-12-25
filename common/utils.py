@@ -136,7 +136,8 @@ def sync_quality_file(s3_bucket_name):
             download_file2('quality_file.json', s3_bucket_name)
             logger.info('Updates to quality file detected, attempting to update settings.')
         logger.info(f'Sync process is running as of {dt_now}, checking for changes every 15 minutes.')
-        sleep(900)
+        # sleep(900)
+        sleep(60)
 
 
 def initial_download(s3_bucket_name, filename):
