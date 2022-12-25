@@ -9,25 +9,24 @@ from loguru import logger
 from common.utils import download_youtube_video_to_s3, sync_quality_file, initial_download
 
 
-def main(quality_file, quality_var):
-    print(config.get('bucket_name'))
+def main(quality_file_dt, quality_var):
     threading.Thread(
         target=sync_quality_file, args=(config.get('bucket_name'),)
     ).start()
     i = 0
     utc = pytz.UTC
     while True:
-        dt_now = datetime.now()
-        t = os.path.getmtime('quality_file.json')
-        v = datetime.fromtimestamp(t)
-        v = v.replace(tzinfo=utc)
-        quality_file = quality_file.replace(tzinfo=utc)
-        if v > quality_file:
+        dt_now = datetime.now()  # for logs
+        quality_var_test = os.path.getmtime('quality_file.json')
+        quality_var_test_2 = datetime.fromtimestamp(quality_var_test)
+
+        if quality_var_test_2 > quality_file_dt:
             # Reinitialize the quality file
             with open('quality_file.json') as f3:
                 qconfig = json.load(f3)
             quality_var = qconfig.get('quality')
             quality_file = os.path.getmtime('quality_file.json')
+            quality_file_dt = datetime.fromtimestamp(quality_file)
             f3.close()
         i += 1
         try:
