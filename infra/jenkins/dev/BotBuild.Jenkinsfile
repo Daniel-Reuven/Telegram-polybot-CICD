@@ -23,7 +23,7 @@ pipeline {
             post {
                 always {
                     sh '''
-                       docker images | grep "daniel-reuven-bot-dev" | awk '{print $1 ":" $2}' | xargs docker rmi"
+                       docker images | grep "daniel-reuven-bot-dev" | awk '{print $1 ":" $2}' | xargs docker rmi
                     '''
                 }
             }

@@ -17,7 +17,7 @@ from validators import ValidationFailure
 def download_youtube_video_to_s3(yt_link, s3_bucket_name, quality_var):
     try:
         # Parameters for youtube_dl use
-        # Max quality set to 1080p, to avoid large filesize
+        # Max quality set to 1080p, to avoid large file size
         qformat = f'bestvideo[height<={quality_var}][ext=mp4]+bestaudio[ext=m4a]/best[ext=mp4]/best'
         ydl = {
             'noplaylist': 'True',
