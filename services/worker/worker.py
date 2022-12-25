@@ -8,7 +8,7 @@ from loguru import logger
 from common.utils import download_youtube_video_to_s3, sync_quality_file, initial_download
 
 
-def main(quality_file):
+def main(quality_file, quality_var):
     print(config.get('bucket_name'))
     threading.Thread(
         target=sync_quality_file, args=(config.get('bucket_name'),)
@@ -71,9 +71,9 @@ if __name__ == '__main__':
     with open('quality_file.json') as f2:
         qconfig = json.load(f2)
     f2.close()
-    q_file = qconfig.get('quality')
     quality_file = os.path.getmtime('quality_file.json')
     quality_file_dt = datetime.fromtimestamp(quality_file)
+    quality_var = qconfig.get('quality')
     f2.close()
     cwd = os.getcwd()
     path = f"{cwd}/ytdlAppData"
@@ -82,4 +82,4 @@ if __name__ == '__main__':
     if not isExist:
         # Create a new directory because it does not exist
         os.makedirs(path)
-    main(quality_file_dt)
+    main(quality_file_dt, quality_var)
