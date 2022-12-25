@@ -5,6 +5,7 @@ import requests
 import yt_dlp
 import re
 import validators
+import pytz
 from urllib import parse
 from botocore.exceptions import ClientError
 from botocore.config import Config
@@ -130,12 +131,18 @@ def sync_quality_file(s3_bucket_name):
     i = 0
     # Start looping with sleep every 15 minutes
     while True:
-        dt_now = datetime.now()
-        dt_file = check_s3_file_modify_date('quality_file.json', s3_bucket_name)
-        if dt_file >= (dt_now - timedelta(minutes=15)):
-            download_file2('quality_file.json', s3_bucket_name)
-            logger.info('Updates to quality file detected, attempting to update settings.')
-        logger.info(f'Sync process is running as of {dt_now}, checking for changes every 15 minutes.')
+        try:
+            dt_now = datetime.now()
+            dt_file = check_s3_file_modify_date('quality_file.json', s3_bucket_name)
+            utc = pytz.UTC
+            dt_file = utc.localize(dt_file)
+            dt_now = utc.localize(dt_now)
+            if dt_file >= (dt_now - timedelta(minutes=15)):
+                download_file2('quality_file.json', s3_bucket_name)
+                logger.info('Updates to quality file detected, attempting to update settings.')
+            logger.info(f'Sync process is running as of {dt_now}, checking for changes every 10 minutes.')
+        except Exception as e:
+            logger.error(e)
         sleep(60)
 
 
