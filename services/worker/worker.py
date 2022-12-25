@@ -66,7 +66,7 @@ if __name__ == '__main__':
     s3_bucket_name = config.get('bucket_name')
     # # Initialize quality file
     initial_download(config.get('bucket_name'), 'quality_file.json')
-    with open('common/quality_file.json') as f2:
+    with open('quality_file.json') as f2:
         qconfig = json.load(f2)
     f2.close()
     quality_var = qconfig.get('quality')

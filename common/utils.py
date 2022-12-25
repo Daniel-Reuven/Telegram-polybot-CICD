@@ -140,6 +140,7 @@ def sync_quality_file(s3_bucket_name):
 
 
 def initial_download(s3_bucket_name, filename):
+    # Function to initial download sensitive files from s3 bucket to pods
     try:
         download_file2(filename, s3_bucket_name)
         logger.info(f'Initial download of quality file.')

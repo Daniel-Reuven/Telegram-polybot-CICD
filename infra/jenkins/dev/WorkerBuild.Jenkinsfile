@@ -23,7 +23,7 @@ pipeline {
             post {
                 always {
                     sh '''
-                       docker image prune -f --filter "label=author=daniel-reuven"
+                       docker images | grep "daniel-reuven-worker-dev" | awk '{print $1 ":" $2}' | xargs docker rmi"
                     '''
                 }
             }
