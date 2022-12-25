@@ -1,6 +1,7 @@
 import json
 import threading
 import boto3
+import os
 from time import sleep
 from telegram.ext import Updater, MessageHandler, Filters
 from loguru import logger
@@ -122,7 +123,7 @@ if __name__ == '__main__':
         _token = f.read()
     with open('common/config.json') as f:
         config = json.load(f)
-    with open('secret.json') as json_handler:
+    with open('common/secret.json') as json_handler:
         secret_data = json.load(json_handler)
     dev_chat_id = secret_data["dev_chat_id"]
     json_handler.close()
