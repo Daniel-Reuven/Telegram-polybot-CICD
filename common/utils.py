@@ -179,7 +179,7 @@ def check_s3_file_modify_date(s3_prefix, s3_bucket_name):
     try:
         print(s3_prefix)
         print(type(s3_bucket_name))
-        datetime_value = boto3.client('s3').head_object(bucket = s3_bucket_name, key = s3_prefix)['LastModified']
+        datetime_value = boto3.client('s3').head_object(bucket=s3_bucket_name, key=s3_prefix)['LastModified']
         # convert to datetime
         print(datetime_value)
         print(type(datetime_value))
