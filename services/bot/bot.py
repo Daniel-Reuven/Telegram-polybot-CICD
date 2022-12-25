@@ -1,11 +1,10 @@
 import json
 import threading
 import boto3
-import os
 from time import sleep
 from telegram.ext import Updater, MessageHandler, Filters
 from loguru import logger
-from common.utils import send_videos_from_bot_queue, is_string_an_url, upload_file2
+from common.utils import send_videos_from_bot_queue, is_string_an_url, upload_file2, initial_download
 
 
 class Bot:
@@ -121,14 +120,18 @@ class YouTubeVideoDownloaderBot(Bot):
 if __name__ == '__main__':
     with open('secrets/.telegramToken') as f:
         _token = f.read()
-    with open('common/config.json') as f:
-        config = json.load(f)
+    f.close()
+    with open('common/config.json') as f2:
+        config = json.load(f2)
+    f2.close()
+    # # Initialize quality file
+    initial_download(config.get('bucket_name'), 'quality_file.json')
+    sqs = boto3.resource('sqs', region_name=config.get('aws_region'))
+    bot_to_worker_queue = sqs.get_queue_by_name(QueueName=config.get('bot_to_worker_queue_name'))
+    worker_to_bot_queue = sqs.get_queue_by_name(QueueName=config.get('worker_to_bot_queue_name'))
     with open('common/secret.json') as json_handler:
         secret_data = json.load(json_handler)
     dev_chat_id = secret_data["dev_chat_id"]
     json_handler.close()
-    sqs = boto3.resource('sqs', region_name=config.get('aws_region'))
-    bot_to_worker_queue = sqs.get_queue_by_name(QueueName=config.get('bot_to_worker_queue_name'))
-    worker_to_bot_queue = sqs.get_queue_by_name(QueueName=config.get('worker_to_bot_queue_name'))
     my_bot = YouTubeVideoDownloaderBot(_token)
     my_bot.start()

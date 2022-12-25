@@ -139,6 +139,14 @@ def sync_quality_file(s3_bucket_name):
         sleep(900)
 
 
+def initial_download(s3_bucket_name, filename):
+    try:
+        download_file2(filename, s3_bucket_name)
+        logger.info(f'Initial download of quality file.')
+    except botocore.exceptions.ClientError as e:
+        logger.error(f'Initial download of quality file failed.')
+
+
 def is_string_an_url(url_string: str) -> bool:
     # Function to validate if input is a URL
     result = validators.url(url_string)

@@ -5,7 +5,7 @@ import boto3
 import os
 from datetime import datetime
 from loguru import logger
-from common.utils import download_youtube_video_to_s3, sync_quality_file
+from common.utils import download_youtube_video_to_s3, sync_quality_file, initial_download
 
 
 def main():
@@ -59,13 +59,16 @@ def main():
 if __name__ == '__main__':
     with open('common/config.json') as f:
         config = json.load(f)
+    f.close()
     sqs = boto3.resource('sqs', region_name=config.get('aws_region'))
     queue = sqs.get_queue_by_name(QueueName=config.get('bot_to_worker_queue_name'))
     worker_to_bot_queue = sqs.get_queue_by_name(QueueName=config.get('worker_to_bot_queue_name'))
     s3_bucket_name = config.get('bucket_name')
     # # Initialize quality file
+    initial_download(config.get('bucket_name'), 'quality_file.json')
     with open('common/quality_file.json') as f2:
         qconfig = json.load(f2)
+    f2.close()
     quality_var = qconfig.get('quality')
 
     quality_file = os.path.getmtime('common/quality_file.json')
