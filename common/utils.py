@@ -210,7 +210,7 @@ def upload_file(key_filename, bucket, object_name=None):
     return True
 
 
-def upload_file2(bucket_name,local_file, s3_path):
+def upload_file2(bucket_name, local_file, s3_path):
     # Function to upload file(path) to S3 bucket
     s3 = boto3.resource('s3')
     try:
