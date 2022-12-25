@@ -129,7 +129,7 @@ if __name__ == '__main__':
     sqs = boto3.resource('sqs', region_name=config.get('aws_region'))
     bot_to_worker_queue = sqs.get_queue_by_name(QueueName=config.get('bot_to_worker_queue_name'))
     worker_to_bot_queue = sqs.get_queue_by_name(QueueName=config.get('worker_to_bot_queue_name'))
-    with open('common/secret.json') as json_handler:
+    with open('secret.json') as json_handler:
         secret_data = json.load(json_handler)
     dev_chat_id = secret_data["dev_chat_id"]
     json_handler.close()
