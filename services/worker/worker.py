@@ -3,7 +3,7 @@ import time
 import threading
 import boto3
 import os
-import datetime
+from datetime import datetime
 from loguru import logger
 from common.utils import download_youtube_video_to_s3, sync_quality_file, initial_download
 
@@ -17,7 +17,7 @@ def main(quality_file):
     while True:
         dt_now = datetime.now()
         t = os.path.getmtime('common/quality_file.json')
-        v = datetime.datetime.fromtimestamp(t)
+        v = datetime.fromtimestamp(t)
         if v > quality_file:
             # Reinitialize the quality file
             with open('common/quality_file.json') as f3:
