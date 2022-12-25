@@ -73,6 +73,7 @@ if __name__ == '__main__':
     f2.close()
     q_file = qconfig.get('quality')
     quality_file = os.path.getmtime('quality_file.json')
+    quality_file_dt = datetime.fromtimestamp(quality_file)
     f2.close()
     cwd = os.getcwd()
     path = f"{cwd}/ytdlAppData"
@@ -81,4 +82,4 @@ if __name__ == '__main__':
     if not isExist:
         # Create a new directory because it does not exist
         os.makedirs(path)
-    main(q_file)
+    main(quality_file_dt)

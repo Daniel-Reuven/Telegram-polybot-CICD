@@ -9,7 +9,7 @@ from urllib import parse
 from botocore.exceptions import ClientError
 from botocore.config import Config
 from loguru import logger
-from time import sleep
+from time import sleep, mktime
 from datetime import datetime
 from validators import ValidationFailure
 
@@ -130,11 +130,11 @@ def sync_quality_file(s3_bucket_name):
     i = 0
     # Start looping with sleep every 15 minutes
     while True:
-        dt_now = datetime.now().strftime("%d/%m/%Y - %H:%M:%S")
+        dt_now = datetime.now()
         dt_file = check_s3_file_modify_date('quality_file.json', s3_bucket_name)
         if dt_file >= (dt_now - datetime.timedelta(minutes=15)):
             download_file2('quality_file.json', s3_bucket_name)
-            logger.info('Updated to quality file detected, attempting to update settings.')
+            logger.info('Updates to quality file detected, attempting to update settings.')
         logger.info(f'Sync process is running as of {dt_now}, checking for changes every 15 minutes.')
         sleep(900)
 
@@ -180,11 +180,13 @@ def check_s3_file_modify_date(s3_prefix, s3_bucket_name):
     try:
         response = s3.head_object(s3_bucket_name, s3_prefix)
         datetime_value = response["LastModified"]
+        # convert to datetime
+        dt = datetime.fromtimestamp(mktime(datetime_value))
     except botocore.exceptions.ClientError as e:
         return e
     else:
         # Return the last modified date of the file
-        return datetime_value
+        return dt
 
 
 def check_s3_object_filesize(key_filename, s3_bucket_name):
