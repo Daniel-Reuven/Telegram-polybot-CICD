@@ -135,8 +135,8 @@ def sync_quality_file(s3_bucket_name):
             dt_now = datetime.now()
             dt_file = check_s3_file_modify_date('quality_file.json', s3_bucket_name)
             utc = pytz.UTC
-            dt_file = utc.localize(dt_file)
-            dt_now = utc.localize(dt_now)
+            # dt_file = utc.localize(dt_file)
+            # dt_now = utc.localize(dt_now)
             if dt_file >= (dt_now - timedelta(minutes=15)):
                 download_file2('quality_file.json', s3_bucket_name)
                 logger.info('Updates to quality file detected, attempting to update settings.')
