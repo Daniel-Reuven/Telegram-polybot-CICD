@@ -70,7 +70,7 @@ class YouTubeVideoDownloaderBot(Bot):
                 logger.info(f'Admin command detected, attempting to comply'.format())
                 self.send_text(update, f'Admin command detected, attempting to comply')
                 sleep(1)
-                with open('common/quality_file.json') as f2:
+                with open('quality_file.json') as f2:
                     qfile_data = json.load(f2)
                 if temp == 'fhd':
                     if qfile_data["quality"] != 1080:
@@ -124,8 +124,10 @@ if __name__ == '__main__':
     with open('common/config.json') as f2:
         config = json.load(f2)
     f2.close()
-    # # Initialize quality file
+    # Initialize secret file
     initial_download(config.get('bucket_name'), 'secret.json')
+    # Initialize quality file
+    initial_download(config.get('bucket_name'), 'quality_file.json')
     sqs = boto3.resource('sqs', region_name=config.get('aws_region'))
     bot_to_worker_queue = sqs.get_queue_by_name(QueueName=config.get('bot_to_worker_queue_name'))
     worker_to_bot_queue = sqs.get_queue_by_name(QueueName=config.get('worker_to_bot_queue_name'))
