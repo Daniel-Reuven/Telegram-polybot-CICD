@@ -71,9 +71,9 @@ if __name__ == '__main__':
     with open('quality_file.json') as f2:
         qconfig = json.load(f2)
     f2.close()
+    quality_var = qconfig.get('quality')
     quality_file = os.path.getmtime('quality_file.json')
     quality_file_dt = datetime.fromtimestamp(quality_file)
-    quality_var = qconfig.get('quality')
     f2.close()
     cwd = os.getcwd()
     path = f"{cwd}/ytdlAppData"
