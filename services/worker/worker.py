@@ -69,8 +69,8 @@ if __name__ == '__main__':
     queue = sqs.get_queue_by_name(QueueName=config.get('bot_to_worker_queue_name'))
     worker_to_bot_queue = sqs.get_queue_by_name(QueueName=config.get('worker_to_bot_queue_name'))
     s3_bucket_name = config.get('bucket_name')
-    # Initialize secret file
-    initial_download(config.get('bucket_name'), 'secret.json')
+    # # Initialize secret file
+    # initial_download(config.get('bucket_name'), 'secret.json')
     # # Initialize quality file
     initial_download(config.get('bucket_name'), 'quality_file.json')
     with open('quality_file.json') as f2:

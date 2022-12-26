@@ -142,21 +142,23 @@ def sync_quality_file(s3_bucket_name):
                 logger.info('Updates to quality file detected, attempting to update settings.')
                 download_file2('quality_file.json', s3_bucket_name)
                 logger.info('Successfully updated quality file.')
-                with open('/app/secret.json') as json_handler:
-                    secret_data = json.load(json_handler)
-                dev_chat_id = secret_data["dev_chat_id"]
-                json_handler.close()
-                telegram_api_send_single_message(dev_chat_id, 'Backend: quality updated successfully.')
+                # Possible code for informing dev of successful change
+                # with open('/app/secret.json') as json_handler:
+                #     secret_data = json.load(json_handler)
+                # dev_chat_id = secret_data["dev_chat_id"]
+                # json_handler.close()
+                # telegram_api_send_single_message(dev_chat_id, 'Backend: quality updated successfully.')
             logger.info(f'Sync process is running as of {dt_now}, checking for changes every 1 minute.')
         except Exception as e:
             logger.error(e)
             logger.info(dt_file.astimezone().tzinfo)
             logger.info(dt_now.astimezone().tzinfo)
-            with open('/app/secret.json') as json_handler:
-                secret_data = json.load(json_handler)
-            dev_chat_id = secret_data["dev_chat_id"]
-            json_handler.close()
-            telegram_api_send_single_message(dev_chat_id, f'Backend: Something went wrong - {e}')
+            # Possible code for informing dev of failed change
+            # with open('/app/secret.json') as json_handler:
+            #     secret_data = json.load(json_handler)
+            # dev_chat_id = secret_data["dev_chat_id"]
+            # json_handler.close()
+            # telegram_api_send_single_message(dev_chat_id, f'Backend: Something went wrong - {e}')
         sleep(60)
 
 
@@ -164,9 +166,9 @@ def initial_download(s3_bucket_name, filename):
     # Function to initial download sensitive files from s3 bucket to pods
     try:
         download_file2(filename, s3_bucket_name)
-        logger.info(f'Initial download of quality file.')
+        logger.info(f'Initial download of {filename}')
     except botocore.exceptions.ClientError as e:
-        logger.error(f'Initial download of quality file failed.')
+        logger.error(f'Initial download of {filename} failed.')
 
 
 def is_string_an_url(url_string: str) -> bool:

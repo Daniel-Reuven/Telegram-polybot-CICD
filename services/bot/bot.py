@@ -79,8 +79,8 @@ class YouTubeVideoDownloaderBot(Bot):
                         local_file = 'quality_file.json'
                         s3_path = 'quality_file.json'
                         upload_file2(config.get('bucket_name'), local_file, s3_path)
-                        logger.info(f'Quality updated, waiting for backend to reply.'.format())
-                        self.send_text(update, f'Quality updated, waiting for backend to reply.')
+                        logger.info(f'Quality updated, waiting for backend.'.format())
+                        self.send_text(update, f'Quality updated, waiting for backend.')
                     except Exception as e:
                         logger.error(e)
                         self.send_text(update, f'Failed to comply')
@@ -98,8 +98,8 @@ class YouTubeVideoDownloaderBot(Bot):
                         local_file = 'quality_file.json'
                         s3_path = 'quality_file.json'
                         upload_file2(config.get('bucket_name'), local_file, s3_path)
-                        logger.info(f'Quality updated, waiting for backend to reply.'.format())
-                        self.send_text(update, f'Quality updated, waiting for backend to reply.')
+                        logger.info(f'Quality updated, waiting for backend.'.format())
+                        self.send_text(update, f'Quality updated, waiting for backend.')
                     except Exception as e:
                         logger.error(e)
                         self.send_text(update, f'Failed to comply')
