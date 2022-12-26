@@ -141,12 +141,12 @@ def sync_quality_file(s3_bucket_name):
                 logger.info('Updates to quality file detected, attempting to update settings.')
                 download_file2('quality_file.json', s3_bucket_name)
                 logger.info('Successfully updated quality file.')
-            logger.info(f'Sync process is running as of {dt_now}, checking for changes every 10 minutes.')
+            logger.info(f'Sync process is running as of {dt_now}, checking for changes every 1 minute.')
         except Exception as e:
             logger.error(e)
             logger.info(dt_file.astimezone().tzinfo)
             logger.info(dt_now.astimezone().tzinfo)
-        sleep(600)
+        sleep(60)
 
 
 def initial_download(s3_bucket_name, filename):
