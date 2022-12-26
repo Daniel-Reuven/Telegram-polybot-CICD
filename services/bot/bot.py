@@ -62,6 +62,13 @@ class YouTubeVideoDownloaderBot(Bot):
             sleep(1)
             self.send_text(update, f'Send a video link, get back a download link for that video\n/help - Display help information.')
             logger.info(f'help menu requested'.format())
+        # Handle "/help" mode
+        elif update.message.text.lower() == '/quality':
+            with open('quality_file.json') as f2:
+                qfile_data = json.load(f2)
+            f2.close()
+            self.send_text(update, f'Quality: up to {qfile_data["quality"]}')
+            logger.info(f'quality check requested'.format())
         # Handle "/setquality" mode
         elif update.message.text.lower().startswith('/setquality'):
             if chat_id == dev_chat_id:
@@ -79,8 +86,8 @@ class YouTubeVideoDownloaderBot(Bot):
                         local_file = 'quality_file.json'
                         s3_path = 'quality_file.json'
                         upload_file2(config.get('bucket_name'), local_file, s3_path)
-                        logger.info(f'Quality updated, waiting for backend.'.format())
-                        self.send_text(update, f'Quality updated, waiting for backend.')
+                        logger.info(f'Quality updated, waiting for backend(1-2 minutes).'.format())
+                        self.send_text(update, f'Quality updated, waiting for backend(1-2 minutes).')
                     except Exception as e:
                         logger.error(e)
                         self.send_text(update, f'Failed to comply')
@@ -98,8 +105,8 @@ class YouTubeVideoDownloaderBot(Bot):
                         local_file = 'quality_file.json'
                         s3_path = 'quality_file.json'
                         upload_file2(config.get('bucket_name'), local_file, s3_path)
-                        logger.info(f'Quality updated, waiting for backend.'.format())
-                        self.send_text(update, f'Quality updated, waiting for backend.')
+                        logger.info(f'Quality updated, waiting for backend(1-2 minutes).'.format())
+                        self.send_text(update, f'Quality updated, waiting for backend(1-2 minutes).')
                     except Exception as e:
                         logger.error(e)
                         self.send_text(update, f'Failed to comply')
