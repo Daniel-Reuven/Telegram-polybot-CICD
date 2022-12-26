@@ -146,7 +146,7 @@ def sync_quality_file(s3_bucket_name):
             logger.error(e)
             logger.info(dt_file.astimezone().tzinfo)
             logger.info(dt_now.astimezone().tzinfo)
-        sleep(60)
+        sleep(600)
 
 
 def initial_download(s3_bucket_name, filename):
