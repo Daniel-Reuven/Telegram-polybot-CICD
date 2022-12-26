@@ -6,6 +6,7 @@ import yt_dlp
 import re
 import validators
 import pytz
+import json
 from urllib import parse
 from botocore.exceptions import ClientError
 from botocore.config import Config
@@ -141,11 +142,21 @@ def sync_quality_file(s3_bucket_name):
                 logger.info('Updates to quality file detected, attempting to update settings.')
                 download_file2('quality_file.json', s3_bucket_name)
                 logger.info('Successfully updated quality file.')
+                with open('/app/secret.json') as json_handler:
+                    secret_data = json.load(json_handler)
+                dev_chat_id = secret_data["dev_chat_id"]
+                json_handler.close()
+                telegram_api_send_single_message(dev_chat_id, 'Backend: quality updated successfully.')
             logger.info(f'Sync process is running as of {dt_now}, checking for changes every 1 minute.')
         except Exception as e:
             logger.error(e)
             logger.info(dt_file.astimezone().tzinfo)
             logger.info(dt_now.astimezone().tzinfo)
+            with open('/app/secret.json') as json_handler:
+                secret_data = json.load(json_handler)
+            dev_chat_id = secret_data["dev_chat_id"]
+            json_handler.close()
+            telegram_api_send_single_message(dev_chat_id, f'Backend: Something went wrong - {e}')
         sleep(60)
 
 
