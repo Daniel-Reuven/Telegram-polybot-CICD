@@ -65,22 +65,13 @@ class YouTubeVideoDownloaderBot(Bot):
         # Handle "/setquality" mode
         elif update.message.text.lower().startswith('/setquality'):
             if chat_id == dev_chat_id:
-                qfile_flag = False
-                temp = inbound_text.split(" ", 1)[1]
-                logger.info(f'Admin command detected, attempting to comply'.format())
-                self.send_text(update, f'Admin command detected, attempting to comply')
-                sleep(1)
-                with open('quality_file.json') as f2:
-                    qfile_data = json.load(f2)
-                if temp == 'fhd':
-                    if qfile_data["quality"] != 1080:
-                        qfile_data["quality"] = 1080
-                        qfile_flag = True
-                elif temp == 'qhd':
-                    if qfile_data["quality"] != 2160:
-                        qfile_data["quality"] = 2160
-                        qfile_flag = True
-                if qfile_flag:
+                if update.message.text.lower() == '/setquality qhd':
+                    logger.info(f'Admin command detected, attempting to comply'.format())
+                    self.send_text(update, f'Admin command detected, attempting to comply')
+                    with open('quality_file.json') as f2:
+                        qfile_data = json.load(f2)
+                    f2.close()
+                    qfile_data["quality"] = 2160
                     try:
                         with open('quality_file.json', 'w') as f2_w:
                             json.dump(qfile_data, f2_w)
@@ -90,17 +81,39 @@ class YouTubeVideoDownloaderBot(Bot):
                         upload_file2(config.get('bucket_name'), local_file, s3_path)
                         logger.info(f'Admin command successfully executed'.format())
                         self.send_text(update, f'Admin command successfully executed')
-                        qfile_flag = False
                     except Exception as e:
                         logger.error(e)
                         self.send_text(update, f'Failed to comply')
+                elif update.message.text.lower() == '/setquality fhd':
+                    logger.info(f'Admin command detected, attempting to comply'.format())
+                    self.send_text(update, f'Admin command detected, attempting to comply')
+                    with open('quality_file.json') as f2:
+                        qfile_data = json.load(f2)
+                    f2.close()
+                    qfile_data["quality"] = 1080
+                    try:
+                        with open('quality_file.json', 'w') as f2_w:
+                            json.dump(qfile_data, f2_w)
+                        f2_w.close()
+                        local_file = 'quality_file.json'
+                        s3_path = 'quality_file.json'
+                        upload_file2(config.get('bucket_name'), local_file, s3_path)
+                        logger.info(f'Admin command successfully executed'.format())
+                        self.send_text(update, f'Admin command successfully executed')
+                    except Exception as e:
+                        logger.error(e)
+                        self.send_text(update, f'Failed to comply')
+                else:
+                    # Send a message to customer saying the command is invalid
+                    self.send_text(update, f'Invalid command, please try again with correct command.')
+                    logger.error(f'Invalid command received by chat_id: {chat_id}'.format())
             else:
                 self.send_text(update, f'you are not allowed to use admin commands.')
                 logger.warning('admin command detected from non admin user'.format())
         else:
+            # Handle "free-text" mode
             temp = inbound_text.replace(" ", "")
             if is_string_an_url(temp):
-                # Handle "free-text" mode
                 # Check if user input is a valid URL for YT-DLP
                 self.send_text(update, f'Processing link')
                 logger.info(f'Sending to SQS queue({bot_to_worker_queue}) - {temp}'.format())
