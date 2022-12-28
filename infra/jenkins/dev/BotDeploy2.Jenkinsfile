@@ -1,4 +1,4 @@
-def ret = build job: 'DEV_BOT_IMAGE_NAME'
+def ret = build job: "${DEV_BOT_IMAGE_NAME}"
 print "The returned value from the triggered job was ${ret.buildVariables.RETURNED_VALUE}"
 pipeline {
     agent {
