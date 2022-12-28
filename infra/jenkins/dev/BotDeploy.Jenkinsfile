@@ -9,9 +9,17 @@ pipeline {
         APP_ENV = "dev"
     }
     parameters {
-        string(name: 'BOT_IMAGE_NAME')
+        string(name: params.BOT_IMAGE_NAME)
     }
     stages {
+    stage('Bot Deploy') {
+            steps {
+                sh '''
+                    echo $BOT_IMAGE_NAME
+                    echo params.BOT_IMAGE_NAME
+                '''
+                }
+            }
         stage('Bot Deploy') {
             steps {
                 withCredentials([
