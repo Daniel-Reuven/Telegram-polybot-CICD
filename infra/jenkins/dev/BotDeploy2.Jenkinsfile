@@ -20,7 +20,6 @@ pipeline {
                     sh '''
                     echo 1
                     echo DEV_BOT_IMAGE_NAME
-                    echo "${DEV_BOT_IMAGE_NAME}"
                     echo 2
                     K8S_CONFIGS=infra/k8s
 
