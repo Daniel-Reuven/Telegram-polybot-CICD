@@ -8,9 +8,6 @@ pipeline {
     environment {
         APP_ENV = "dev"
     }
-    parameters {
-        string(name: params.BOT_IMAGE_NAME)
-    }
     stages {
     stage('Bot Deploy') {
             steps {
