@@ -9,7 +9,7 @@ pipeline {
         APP_ENV = "dev"
     }
     parameters {
-        string(name: 'BOT_IMAGE_NAME')
+        string(name: 'BOT_IMAGE_NAME', defaultValue="{BOT_IMAGE_NAME}")
     }
     stages {
         stage('Bot Deploy') {
@@ -19,6 +19,7 @@ pipeline {
                     file(credentialsId: 'kubeconfig', variable: 'KUBECONFIG')
                 ]) {
                     sh '''
+                    echo $BOT_IMAGE_NAME
                     K8S_CONFIGS=infra/k8s
 
                     # replace placeholders in YAML k8s files
