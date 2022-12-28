@@ -1,3 +1,5 @@
+def ret = build job: 'DEV_BOT_IMAGE_NAME'
+print "The returned value from the triggered job was ${ret.buildVariables.RETURNED_VALUE}"
 pipeline {
     agent {
         docker {
@@ -9,13 +11,6 @@ pipeline {
         APP_ENV = "dev"
     }
     stages {
-        stage('get Variable') {
-            steps {
-                script {
-                    test = DEV_BOT_IMAGE_NAME
-                }
-            }
-        }
         stage('Bot Deploy') {
             steps {
                 withCredentials([
