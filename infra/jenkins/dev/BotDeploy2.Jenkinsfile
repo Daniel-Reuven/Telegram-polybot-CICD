@@ -16,7 +16,9 @@ pipeline {
                     file(credentialsId: 'kubeconfig', variable: 'KUBECONFIG')
                 ]) {
                     sh '''
+                    echo 1
                     echo ${env.BOT_IMAGE_NAME}
+                    echo 2
                     K8S_CONFIGS=infra/k8s
 
                     # replace placeholders in YAML k8s files
