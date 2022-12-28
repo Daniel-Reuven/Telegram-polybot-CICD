@@ -9,7 +9,7 @@ pipeline {
         APP_ENV = "dev"
     }
     parameters {
-        string(name: 'BOT_IMAGE_NAME1', defaultValue=$BOT_IMAGE_NAME)
+        string(name: 'BOT_IMAGE_NAME1', defaultValue="$BOT_IMAGE_NAME")
     }
     stages {
         stage('Bot Deploy') {
