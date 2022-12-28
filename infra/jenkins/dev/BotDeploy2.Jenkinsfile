@@ -12,7 +12,7 @@ pipeline {
         stage('get Variable') {
             steps {
                 script {
-                    test = ${DEV_BOT_IMAGE_NAME}
+                    test = ${env.DEV_BOT_IMAGE_NAME}
                     echo $test
                 }
             }
