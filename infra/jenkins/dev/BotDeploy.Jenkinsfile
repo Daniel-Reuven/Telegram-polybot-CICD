@@ -7,12 +7,13 @@ pipeline {
     }
     environment {
         APP_ENV = "dev"
+        BOT_IMAGE_NAME1 = $BOT_IMAGE_NAME
     }
     stages {
         stage('Bot pre') {
             steps {
                 sh '''
-                    echo $BOT_IMAGE_NAME
+                    echo $BOT_IMAGE_NAME1
                     echo params.BOT_IMAGE_NAME
                 '''
                 }
