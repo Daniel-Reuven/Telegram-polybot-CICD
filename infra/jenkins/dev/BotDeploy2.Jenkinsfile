@@ -17,8 +17,8 @@ pipeline {
                 ]) {
                     sh '''
                     echo 1
-                    echo ${env.$BOT_IMAGE_NAME}
-                    echo "${env.$BOT_IMAGE_NAME}"
+                    echo ${env.DEV_BOT_IMAGE_NAME}
+                    echo "${env.DEV_BOT_IMAGE_NAME}"
                     echo 2
                     K8S_CONFIGS=infra/k8s
 
