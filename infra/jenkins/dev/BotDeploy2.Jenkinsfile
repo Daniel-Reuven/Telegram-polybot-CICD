@@ -7,7 +7,9 @@ pipeline {
     }
     environment {
         APP_ENV = "dev"
-        BOT_IMAGE_NAME = "${BOT_IMAGE_NAME}"
+    }
+    parameters {
+        run filter: 'SUCCESSFUL', name: 'BOT_IMAGE_NAME', projectName: 'dev/BotBuild'
     }
     stages {
         stage('Bot Deploy') {
