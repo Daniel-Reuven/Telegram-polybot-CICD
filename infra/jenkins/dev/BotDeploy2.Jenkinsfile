@@ -17,7 +17,7 @@ pipeline {
                 ]) {
                     sh '''
                     echo params.BOT_IMAGE_NAME
-                    echo ${params.BOT_IMAGE_NAME}
+                    echo "${params.BOT_IMAGE_NAME}"
                     K8S_CONFIGS=infra/k8s
 
                     # replace placeholders in YAML k8s files
