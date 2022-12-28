@@ -7,7 +7,7 @@ pipeline {
     }
     environment {
         APP_ENV = "dev"
-        BOT_IMAGE_NAME1 = $BOT_IMAGE_NAME
+        BOT_IMAGE_NAME1 = "$BOT_IMAGE_NAME"
     }
     stages {
         stage('Bot pre') {
