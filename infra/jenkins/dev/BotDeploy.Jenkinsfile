@@ -9,7 +9,7 @@ pipeline {
         APP_ENV = "dev"
     }
     stages {
-    stage('Bot Deploy') {
+        stage('Bot pre') {
             steps {
                 sh '''
                     echo $BOT_IMAGE_NAME
