@@ -19,6 +19,7 @@ pipeline {
                     file(credentialsId: 'kubeconfig', variable: 'KUBECONFIG')
                 ]) {
                     sh '''
+                    echo $BOT_IMAGE_NAME1
                     echo $BOT_IMAGE_NAME
                     K8S_CONFIGS=infra/k8s
 
