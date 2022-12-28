@@ -8,9 +8,6 @@ pipeline {
     environment {
         APP_ENV = "dev"
     }
-    parameters {
-        run filter: 'SUCCESSFUL', name: 'BOT_IMAGE_NAME', projectName: 'dev/BotBuild'
-    }
     stages {
         stage('Bot Deploy') {
             steps {
@@ -20,7 +17,8 @@ pipeline {
                 ]) {
                     sh '''
                     echo 1
-                    echo $BOT_IMAGE_NAME
+                    echo ${env.$BOT_IMAGE_NAME}
+                    echo "${env.$BOT_IMAGE_NAME}"
                     echo 2
                     K8S_CONFIGS=infra/k8s
 

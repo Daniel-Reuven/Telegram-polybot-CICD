@@ -31,7 +31,7 @@ pipeline {
         stage('Set Variable') {
             steps {
                 script {
-                    BOT_IMAGE_NAME = "${REGISTRY_URL}/${IMAGE_NAME}:${IMAGE_TAG}"
+                    env.DEV-BOT_IMAGE_NAME = "${REGISTRY_URL}/${IMAGE_NAME}:${IMAGE_TAG}"
                 }
             }
         }
