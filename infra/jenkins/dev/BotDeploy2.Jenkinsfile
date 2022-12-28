@@ -1,5 +1,6 @@
 println env.DEV_BOT_IMAGE_NAME
 println DEV_BOT_IMAGE_NAME
+println BOT_IMAGE_NAME
 pipeline {
     agent {
         docker {
