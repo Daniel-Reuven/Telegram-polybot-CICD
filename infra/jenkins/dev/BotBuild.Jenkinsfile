@@ -9,7 +9,7 @@ pipeline {
         REGISTRY_URL = "352708296901.dkr.ecr.eu-central-1.amazonaws.com"
         IMAGE_TAG = "0.0.$BUILD_NUMBER"
         IMAGE_NAME = "daniel-reuven-bot-dev"
-        BOT_IMAGE_NAME = ""
+        BOT_IMAGE_NAME = "1"
     }
     stages {
         stage('Trigger Build') {
