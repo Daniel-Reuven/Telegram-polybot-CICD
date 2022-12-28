@@ -2,6 +2,8 @@ import json
 import threading
 import boto3
 from time import sleep
+
+from botocore.exceptions import ClientError
 from telegram.ext import Updater, MessageHandler, Filters
 from loguru import logger
 from common.utils import send_videos_from_bot_queue, is_string_an_url, upload_file2, initial_download
@@ -33,7 +35,7 @@ class Bot:
             update.message.reply_text(text, quote=quote)
 
 
-class YouTubeVideoDownloaderBot(Bot):
+class VideoDownloaderBot(Bot):
     def __init__(self, token):
         super().__init__(token)
         # Starts a thread to handle bot queue
@@ -124,14 +126,18 @@ class YouTubeVideoDownloaderBot(Bot):
                 # Check if user input is a valid URL for YT-DLP
                 self.send_text(update, f'Processing link')
                 logger.info(f'Sending to SQS queue({bot_to_worker_queue}) - {temp}'.format())
-                # Send to AWS SQS queue
-                response = bot_to_worker_queue.send_message(
-                    MessageBody=inbound_text,
-                    MessageAttributes={
-                        'chat_id': {'StringValue': chat_id, 'DataType': 'String'}
-                    }
-                )
-                logger.info(f'Message {response.get("MessageId")} has been sent to SQS queue({bot_to_worker_queue})')
+                try:
+                    # Send to AWS SQS queue
+                    response = bot_to_worker_queue.send_message(
+                        MessageBody=inbound_text,
+                        MessageAttributes={
+                            'chat_id': {'StringValue': chat_id, 'DataType': 'String'}
+                        }
+                    )
+                    logger.info(f'Message {response.get("MessageId")} has been sent to SQS queue({bot_to_worker_queue})')
+                except ClientError as e:
+                    logger.error(f'An error has occurred: {e}')
+                    self.send_text(update, f'An error has occurred, please try again, if problem persists, please try again later')
             else:
                 # Send a message to customer saying the URL is invalid
                 self.send_text(update, f'Invalid URL, please try again with a valid URL.')
@@ -156,5 +162,5 @@ if __name__ == '__main__':
         secret_data = json.load(json_handler)
     dev_chat_id = secret_data["dev_chat_id"]
     json_handler.close()
-    my_bot = YouTubeVideoDownloaderBot(_token)
+    my_bot = VideoDownloaderBot(_token)
     my_bot.start()
