@@ -1,6 +1,6 @@
-def jobLog = Jenkins.getInstance().getItemByFullName('job-path/testjob').getLastSuccessfulBuild().log
+def jobLog = getInstance().getItemByFullName('dev/BotBuild').getLastSuccessfulBuild().log
 println(jobLog)
-def cls = Jenkins.getInstance().getItemByFullName('dev/BotBuild').getLastSuccessfulBuild().actions.find{ it instanceof ParametersAction }?.parameters.find{it.name == 'BOT_IMAGE_NAME'}?.value
+def cls = getInstance().getItemByFullName('dev/BotBuild').getLastSuccessfulBuild().actions.find{ it instanceof ParametersAction }?.parameters.find{it.name == 'BOT_IMAGE_NAME'}?.value
 println BOT_IMAGE_NAME
 pipeline {
     agent {
