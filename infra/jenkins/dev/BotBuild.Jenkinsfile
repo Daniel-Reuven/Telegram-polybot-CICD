@@ -28,6 +28,13 @@ pipeline {
                 }
             }
         }
+        stage('Set Variable') {
+            steps {
+                script {
+                    DEV_BOT_IMAGE_NAME = "${REGISTRY_URL}/${IMAGE_NAME}:${IMAGE_TAG}"
+                }
+            }
+        }
         stage('Trigger Deploy') {
             steps {
                 build job: 'BotDeploy', wait: false, parameters: [

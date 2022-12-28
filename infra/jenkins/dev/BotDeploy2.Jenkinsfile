@@ -1,7 +1,9 @@
-def jobLog = getInstance().getItemByFullName('dev/BotBuild').getLastSuccessfulBuild().log
-println(jobLog)
-def cls = getInstance().getItemByFullName('dev/BotBuild').getLastSuccessfulBuild().actions.find{ it instanceof ParametersAction }?.parameters.find{it.name == 'BOT_IMAGE_NAME'}?.value
-println BOT_IMAGE_NAME
+// def jobLog = Jenkins.getInstance().getItemByFullName('dev/BotBuild').getLastSuccessfulBuild().log
+// println(jobLog)
+def test1 = Jenkins.getInstance().getItemByFullName('dev/BotBuild').getLastSuccessfulBuild().buildVariables["DEV_BOT_IMAGE_NAME"]
+// println BOT_IMAGE_NAME
+// println("MY_PARAM in previous build: ${currentBuild.previousBuild.buildVariables["MY_PARAM_COPY"]}")
+println(test1)
 pipeline {
     agent {
         docker {
