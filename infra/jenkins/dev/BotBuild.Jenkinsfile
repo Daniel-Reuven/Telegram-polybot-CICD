@@ -32,7 +32,7 @@ pipeline {
             steps {
                 script {
                     DEV_BOT_IMAGE_NAME = "${REGISTRY_URL}/${IMAGE_NAME}:${IMAGE_TAG}"
-                    writeln("[" + DEV_BOT_IMAGE_NAME + "]")
+                    echo "BUILD_IMAGE_URL[" + DEV_BOT_IMAGE_NAME + "]"
                 }
             }
         }
