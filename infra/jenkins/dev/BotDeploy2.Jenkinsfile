@@ -1,6 +1,7 @@
 // def jobLog = Jenkins.getInstance().getItemByFullName('dev/BotBuild').getLastSuccessfulBuild().log
 // println(jobLog)
-def test1 = Jenkins.getInstance().getItemByFullName('dev/BotBuild').getLastSuccessfulBuild().buildVariables["DEV_BOT_IMAGE_NAME"]
+def build = Jenkins.get().getItems(org.jenkinsci.plugins.workflow.job.WorkflowJob).find {it.displayName == 'dev/BotBuild'}?.getLastSuccessfulBuild()
+def test1 = build.buildVariables["DEV_BOT_IMAGE_NAME"]
 // println BOT_IMAGE_NAME
 // println("MY_PARAM in previous build: ${currentBuild.previousBuild.buildVariables["MY_PARAM_COPY"]}")
 println(test1)
