@@ -120,7 +120,7 @@ class VideoDownloaderBot(Bot):
                 self.send_text(update, f'you are not allowed to use admin commands.')
                 logger.warning('admin command detected from non admin user'.format())
         else:
-            # Handle "free-text" / URL text mode
+            # Handle "free-text" / URL text mode.
             temp = inbound_text.replace(" ", "")
             if is_string_an_url(temp):
                 # Check if user input is a valid URL for YT-DLP
