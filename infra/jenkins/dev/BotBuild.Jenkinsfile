@@ -9,6 +9,7 @@ pipeline {
         REGISTRY_URL = "352708296901.dkr.ecr.eu-central-1.amazonaws.com"
         IMAGE_TAG = "0.0.$BUILD_NUMBER"
         IMAGE_NAME = "daniel-reuven-bot-dev"
+        env.daniel = "123"
     }
     stages {
         stage('Trigger Build') {
@@ -25,14 +26,6 @@ pipeline {
                     sh '''
                        docker images | grep "daniel-reuven-bot-dev" | awk '{print $1 ":" $2}' | xargs docker rmi
                     '''
-                }
-            }
-        }
-        stage('Set Variable') {
-            steps {
-                script {
-                    env.DEV_BOT_IMAGE_NAME = "${REGISTRY_URL}/${IMAGE_NAME}:${IMAGE_TAG}"
-                    echo "BUILD_IMAGE_URL[" + env.DEV_BOT_IMAGE_NAME + "]"
                 }
             }
         }
