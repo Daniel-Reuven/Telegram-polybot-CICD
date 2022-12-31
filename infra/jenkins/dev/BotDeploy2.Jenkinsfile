@@ -1,5 +1,5 @@
 properties([
-    parameters([
+    parameters(
         [$class: 'ChoiceParameter',
             choiceType: 'PT_SINGLE_SELECT',
             description: 'Select the Env Name from the Dropdown List',
@@ -19,11 +19,12 @@ properties([
                     classpath: [],
                     sandbox: false,
                     script:
-                        'def build = Jenkins.getInstance().getItemByFullName(\'dev/BotBuildPost\').getLastSuccessfulBuild()
-                        def String myVar= build.getEnvironment(TaskListener.NULL).get(\'BOT_IMAGE_NAME\')
-                        return [myVar]'
+                        '''
+                        def build = Jenkins.getInstance().getItemByFullName('dev/BotBuildPost').getLastSuccessfulBuild()
+                        def String myVar= build.getEnvironment(TaskListener.NULL).get('BOT_IMAGE_NAME')
+                        return [myVar]
+                        '''
                 ]
-            ]
         ]
     ])
 ])
