@@ -19,9 +19,9 @@ properties([
                     classpath: [],
                     sandbox: false,
                     script:
-                        def build = Jenkins.getInstance().getItemByFullName('dev/BotBuildPost').getLastSuccessfulBuild()
+                        'def build = Jenkins.getInstance().getItemByFullName('dev/BotBuildPost').getLastSuccessfulBuild()
                         def String myVar= build.getEnvironment(TaskListener.NULL).get('BOT_IMAGE_NAME')
-                        return [myVar]
+                        return [myVar]'
                 ]
             ]
         ]
