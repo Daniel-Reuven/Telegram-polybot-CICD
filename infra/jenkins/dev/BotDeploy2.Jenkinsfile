@@ -19,6 +19,7 @@ pipeline {
                     def build = Jenkins.getInstance().getItemByFullName('dev/BotBuildPost').getLastSuccessfulBuild()
                     // get parameters
                     def String MYVAR = build.getEnvironment(TaskListener.NULL).get('BOT_IMAGE_NAME')
+                    println("${MYVAR}")
                     BOT_IMAGE_NAME = "${MYVAR}"
                 }
             }
