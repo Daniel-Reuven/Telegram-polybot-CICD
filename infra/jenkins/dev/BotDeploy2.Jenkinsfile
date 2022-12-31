@@ -10,9 +10,19 @@ pipeline {
     }
     environment {
         APP_ENV = "dev"
-        BOT_IMAGE_NAME = "${MYVAR}"
+        BOT_IMAGE_NAME = ""
     }
     stages {
+        stage('Set Variable') {
+            steps {
+                script {
+                    def build = Jenkins.getInstance().getItemByFullName('dev/BotBuildPost').getLastSuccessfulBuild()
+                    // get parameters
+                    def String MYVAR = build.getEnvironment(TaskListener.NULL).get('BOT_IMAGE_NAME')
+                    BOT_IMAGE_NAME = "${MYVAR}"
+                }
+            }
+        }
         stage('Bot Deploy') {
             steps {
                 withCredentials([
