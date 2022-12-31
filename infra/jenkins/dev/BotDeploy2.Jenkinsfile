@@ -1,3 +1,32 @@
+properties([
+    parameters([
+        [$class: 'ChoiceParameter',
+            choiceType: 'PT_SINGLE_SELECT',
+            description: 'Select the Env Name from the Dropdown List',
+            filterLength: 1,
+            filterable: true,
+            name: 'BOT_IMAGE_NAME',
+            randomName: 'choice-parameter-5631314439613978',
+            script: [
+                $class: 'GroovyScript',
+                fallbackScript: [
+                    classpath: [],
+                    sandbox: false,
+                    script:
+                        'return[\'Could not get Env\']'
+                ],
+                script: [
+                    classpath: [],
+                    sandbox: false,
+                    script:
+                        def build = Jenkins.getInstance().getItemByFullName('dev/BotBuildPost').getLastSuccessfulBuild()
+                        def String myVar= build.getEnvironment(TaskListener.NULL).get('BOT_IMAGE_NAME')
+                        return [myVar]
+                ]
+            ]
+        ]
+    ])
+])
 pipeline {
     agent {
         docker {
