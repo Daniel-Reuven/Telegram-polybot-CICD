@@ -1,6 +1,6 @@
-def build = Jenkins.getInstance().getItemByFullName('dev/BotBuildPost').getLastSuccessfulBuild()
+//def build = Jenkins.getInstance().getItemByFullName('dev/BotBuildPost').getLastSuccessfulBuild()
 // get parameters
-def String MYVAR = build.getEnvironment(TaskListener.NULL).get('BOT_IMAGE_NAME')
+//def String MYVAR = build.getEnvironment(TaskListener.NULL).get('BOT_IMAGE_NAME')
 pipeline {
     agent {
         docker {
