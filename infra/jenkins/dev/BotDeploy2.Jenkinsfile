@@ -1,3 +1,9 @@
+properties([
+            parameters([[$class: 'ChoiceParameter', choiceType: 'PT_SINGLE_SELECT', filterLength: 1, filterable: false, name: 'BOT_IMAGE_NAME', randomName: 'choice-parameter-7498300564399', script: [$class: 'GroovyScript', fallbackScript: [classpath: [], oldScript: '', sandbox: true, script: 'return [\'error\']'], script: [classpath: [], oldScript: '', sandbox: true, script: '''try{
+def build = jenkins.model.Jenkins.instance.getItemByFullName(\'dev/BotBuildPost\').getLastSuccessfulBuild().getBuildVariables()["BOT_IMAGE_NAME"]
+return [build]
+} catch (Exception e){return [e.getMessage()]}''']]]])])
+
 pipeline {
     agent {
         docker {
@@ -7,7 +13,7 @@ pipeline {
     }
     environment {
         APP_ENV = "dev"
-        BUILD_ENV = params.BOT_IMAGE_NAME.join(", ")
+        BUILD_ENV = "${params.BOT_IMAGE_NAME}"
     }
     stages {
         stage('Bot Deploy') {
