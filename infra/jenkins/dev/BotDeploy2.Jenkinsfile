@@ -9,28 +9,30 @@ properties(
             filterable: false,
             name: 'BOT_IMAGE_NAME',
             randomName: 'choice-parameter-7498300564399',
-            script: [$class: 'GroovyScript',
-            fallbackScript:
-                [
-                    classpath: [],
-                    oldScript: '',
-                    sandbox: true,
-                    script:
-                    'return [\'error\']'
-                ],
             script:
+            [
+                $class: 'GroovyScript',
+                fallbackScript:
                 [
-                    classpath: [],
-                    oldScript: '',
-                    sandbox: true,
-                    script:
-                        '''
-                        try{
-                        def build = jenkins.model.Jenkins.instance.getItemByFullName(\'dev/BotBuildPost\').getLastSuccessfulBuild().getBuildVariables()["BOT_IMAGE_NAME"]
-                        return [build]
-                        }
-                        catch (Exception e){return [e.getMessage()]}
-                        '''
+                        classpath: [],
+                        oldScript: '',
+                        sandbox: true,
+                        script:
+                        'return [\'error\']'
+                ],
+                script:
+                [
+                        classpath: [],
+                        oldScript: '',
+                        sandbox: true,
+                        script:
+                            '''
+                            try{
+                            def build = jenkins.model.Jenkins.instance.getItemByFullName(\'dev/BotBuildPost\').getLastSuccessfulBuild().getBuildVariables()["BOT_IMAGE_NAME"]
+                            return [build]
+                            }
+                            catch (Exception e){return [e.getMessage()]}
+                            '''
                 ]
             ]
         ]
