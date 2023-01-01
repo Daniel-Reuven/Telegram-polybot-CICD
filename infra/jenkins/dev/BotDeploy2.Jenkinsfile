@@ -2,7 +2,7 @@ properties([
     parameters(
         [$class: 'ChoiceParameter',
             choiceType: 'PT_SINGLE_SELECT',
-            description: 'Select the Env Name from the Dropdown List',
+            description: 'Select the last bot build image url from the Dropdown List',
             filterLength: 1,
             filterable: true,
             name: 'BOT_IMAGE_NAME',
@@ -20,9 +20,8 @@ properties([
                     sandbox: false,
                     script:
                         '''
-                        def build = Jenkins.getInstance().getItemByFullName('dev/BotBuildPost').getLastSuccessfulBuild()
-                        def String myVar= build.getEnvironment(TaskListener.NULL).get('BOT_IMAGE_NAME')
-                        return [myVar]
+                        def build = jenkins.model.Jenkins.instance.getItemByFullName('dev/BotBuildPost').getLastSuccessfulBuild().getBuildVariables()
+                        return build
                         '''
                 ]
         ]
