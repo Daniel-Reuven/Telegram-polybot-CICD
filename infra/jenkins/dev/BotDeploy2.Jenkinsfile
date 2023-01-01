@@ -1,23 +1,3 @@
-properties([
-    parameters([
-        [
-            $class: 'ChoiceParameter',
-            choiceType: 'PT_SINGLE_SELECT',
-            description: '',
-            filterable: false,
-            name: 'BOT_IMAGE_NAME',
-            randomName: 'choice-parameter-21337077649621572',
-            script: [
-                $class: 'GroovyScript',
-                fallbackScript: 'return[\'Could not get info\']',
-                script: '''
-                    def build = jenkins.model.Jenkins.instance.getItemByFullName('dev/BotBuildPost').getLastSuccessfulBuild().getBuildVariables()
-                    return build
-                    '''
-            ]
-        ]
-    ])
-])
 pipeline {
     agent {
         docker {
@@ -37,9 +17,9 @@ pipeline {
                 ]) {
                     sh '''
                     echo 1
-                    echo "$BOT_IMAGE_NAME"
+                    echo "params.BOT_IMAGE_NAME"
                     echo 2
-                    echo "${BOT_IMAGE_NAME}"
+                    echo "${params.BOT_IMAGE_NAME}"
                     echo 3
                     K8S_CONFIGS=infra/k8s
 
