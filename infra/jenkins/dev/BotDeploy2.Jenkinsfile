@@ -14,6 +14,7 @@ pipeline {
             steps {
             script{
                     println(BUILD_ENV)
+                    println(APP_ENV)
             }
                 withCredentials([
                     string(credentialsId: 'telegram-bot-token', variable: 'TELEGRAM_TOKEN'),
