@@ -1,32 +1,3 @@
-properties([
-    parameters(
-        [$class: 'ChoiceParameter',
-            choiceType: 'PT_SINGLE_SELECT',
-            description: 'Select the last bot build image url from the Dropdown List',
-            filterLength: 1,
-            filterable: true,
-            name: 'BOT_IMAGE_NAME',
-            randomName: 'choice-parameter-5631314439613978',
-            script: [
-                $class: 'GroovyScript',
-                fallbackScript: [
-                    classpath: [],
-                    sandbox: false,
-                    script:
-                        'return[\'Could not get info\']'
-                ],
-                script: [
-                    classpath: [],
-                    sandbox: false,
-                    script:
-                        '''
-                        def build = jenkins.model.Jenkins.instance.getItemByFullName('dev/BotBuildPost').getLastSuccessfulBuild().getBuildVariables()
-                        return build
-                        '''
-                ]
-        ]
-    ])
-])
 pipeline {
     agent {
         docker {
