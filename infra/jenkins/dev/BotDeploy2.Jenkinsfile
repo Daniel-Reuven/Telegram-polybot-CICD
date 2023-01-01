@@ -8,10 +8,14 @@ pipeline {
     }
     environment {
         APP_ENV = "dev"
+        BUILD_ENV = params.BOT_IMAGE_NAME.join(", ")
     }
     stages {
         stage('Bot Deploy') {
             steps {
+            script{
+                    println(build)
+            }
                 withCredentials([
                     string(credentialsId: 'telegram-bot-token', variable: 'TELEGRAM_TOKEN'),
                     file(credentialsId: 'kubeconfig', variable: 'KUBECONFIG')
@@ -21,7 +25,7 @@ pipeline {
 
                     # replace placeholders in YAML k8s files
                     bash common/replaceInFile.sh $K8S_CONFIGS/bot.yaml APP_ENV $APP_ENV
-                    bash common/replaceInFile.sh $K8S_CONFIGS/bot.yaml BOT_IMAGE '''+build+'''
+                    bash common/replaceInFile.sh $K8S_CONFIGS/bot.yaml BOT_IMAGE $BUILD_ENV
                     bash common/replaceInFile.sh $K8S_CONFIGS/bot.yaml TELEGRAM_TOKEN $(echo -n $TELEGRAM_TOKEN | base64)
 
                     # apply the configurations to k8s cluster
