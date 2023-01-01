@@ -1,3 +1,4 @@
+def build = jenkins.model.Jenkins.instance.getItemByFullName('dev/BotBuildPost').getLastSuccessfulBuild().getBuildVariables()["BOT_IMAGE_NAME"]
 pipeline {
     agent {
         docker {
@@ -22,7 +23,7 @@ pipeline {
 
                     # replace placeholders in YAML k8s files
                     bash common/replaceInFile.sh $K8S_CONFIGS/bot.yaml APP_ENV $APP_ENV
-                    bash common/replaceInFile.sh $K8S_CONFIGS/bot.yaml '''+BOT_IMAGE_NAME+''' $BOT_IMAGE_NAME
+                    bash common/replaceInFile.sh $K8S_CONFIGS/bot.yaml '''+build+''' $BOT_IMAGE_NAME
                     bash common/replaceInFile.sh $K8S_CONFIGS/bot.yaml TELEGRAM_TOKEN $(echo -n $TELEGRAM_TOKEN | base64)
 
                     # apply the configurations to k8s cluster
