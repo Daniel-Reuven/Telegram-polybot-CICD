@@ -1,4 +1,3 @@
-def build = jenkins.model.Jenkins.instance.getItemByFullName('dev/BotBuildPost').getLastSuccessfulBuild().getBuildVariables()["BOT_IMAGE_NAME"]
 pipeline {
     agent {
         docker {
@@ -14,7 +13,7 @@ pipeline {
         stage('Bot Deploy') {
             steps {
             script{
-                    println(build)
+                    println(BUILD_ENV)
             }
                 withCredentials([
                     string(credentialsId: 'telegram-bot-token', variable: 'TELEGRAM_TOKEN'),
