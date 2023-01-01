@@ -9,7 +9,7 @@ properties([
             randomName: 'choice-parameter-21337077649621572',
             script: [
                 $class: 'GroovyScript',
-                fallbackScript: 'return['Could not get info']',
+                fallbackScript: 'return[\'Could not get info\']',
                 script: '''
                     def build = jenkins.model.Jenkins.instance.getItemByFullName('dev/BotBuildPost').getLastSuccessfulBuild().getBuildVariables()
                     return build
