@@ -67,7 +67,7 @@ pipeline {
 
                     # replace placeholders in YAML k8s files
                     bash common/replaceInFile.sh $K8S_CONFIGS/worker.yaml APP_ENV $APP_ENV
-                    bash common/replaceInFile.sh $K8S_CONFIGS/worker.yaml WORKER_IMAGE BUILD_ENV
+                    bash common/replaceInFile.sh $K8S_CONFIGS/worker.yaml WORKER_IMAGE $BUILD_ENV
 
                     # apply the configurations to k8s cluster
                     kubectl apply --kubeconfig ${KUBECONFIG} -f $K8S_CONFIGS/worker.yaml
