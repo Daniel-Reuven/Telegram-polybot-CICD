@@ -6,7 +6,9 @@ metadata:
   labels:
     app: worker-{{APP_ENV}}
 spec:
-  replicas: 2
+  replicas: 1
+  strategy:
+    type: Recreate
   selector:
     matchLabels:
       app: worker-{{APP_ENV}}

@@ -7,26 +7,27 @@ type: Opaque
 data:
   token: {{TELEGRAM_TOKEN}}
 ---
-
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: bot-app-{{APP_ENV}}
+  name: bot-{{APP_ENV}}
   namespace: {{APP_ENV}}
   labels:
-    app: bot-app-{{APP_ENV}}
+    app: bot-{{APP_ENV}}
 spec:
   replicas: 1
+  strategy:
+    type: Recreate
   selector:
     matchLabels:
-      app: bot-app-{{APP_ENV}}
+      app: bot-{{APP_ENV}}
   template:
     metadata:
       labels:
-        app: bot-app-{{APP_ENV}}
+        app: bot-{{APP_ENV}}
     spec:
       containers:
-        - name: bot-app-{{APP_ENV}}
+        - name: bot-{{APP_ENV}}
           image: {{BOT_IMAGE}}
           volumeMounts:
             - name: bot-token
