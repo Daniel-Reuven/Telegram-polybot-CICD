@@ -2,7 +2,6 @@ import json
 import threading
 import boto3
 from time import sleep
-
 from botocore.exceptions import ClientError
 from telegram.ext import Updater, MessageHandler, filters
 from loguru import logger
