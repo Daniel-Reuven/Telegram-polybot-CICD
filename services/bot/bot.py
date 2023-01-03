@@ -4,7 +4,7 @@ import boto3
 from time import sleep
 
 from botocore.exceptions import ClientError
-from telegram.ext import Updater, MessageHandler, Filters
+from telegram.ext import Updater, MessageHandler, filters
 from loguru import logger
 from common.utils import send_videos_from_bot_queue, is_string_an_url, upload_file2, initial_download
 
@@ -14,7 +14,7 @@ class Bot:
         # create frontend object to the bot programmer
         self.updater = Updater(token, use_context=True)
         # add _message_handler as main internal msg handler
-        self.updater.dispatcher.add_handler(MessageHandler(Filters.text, self._message_handler))
+        self.updater.dispatcher.add_handler(MessageHandler(filters.text, self._message_handler))
 
     def start(self):
         """Start polling msgs from users, this function never returns"""
