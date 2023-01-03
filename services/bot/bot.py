@@ -3,7 +3,7 @@ import threading
 import boto3
 from time import sleep
 from botocore.exceptions import ClientError
-from telegram.ext import Updater, MessageHandler, filters
+from telegram.ext import Updater, MessageHandler, Filters
 from loguru import logger
 from common.utils import send_videos_from_bot_queue, is_string_an_url, upload_file2, initial_download
 
@@ -13,7 +13,7 @@ class Bot:
         # create frontend object to the bot programmer
         self.updater = Updater(token, use_context=True)
         # add _message_handler as main internal msg handler
-        self.updater.dispatcher.add_handler(MessageHandler(filters.text, self._message_handler))
+        self.updater.dispatcher.add_handler(MessageHandler(Filters.text, self._message_handler))
 
     def start(self):
         """Start polling msgs from users, this function never returns"""
@@ -39,8 +39,7 @@ class VideoDownloaderBot(Bot):
         super().__init__(token)
         # Starts a thread to handle bot queue
         threading.Thread(
-            target=send_videos_from_bot_queue,
-            args=(worker_to_bot_queue, config.get('bucket_name'))
+            target=send_videos_from_bot_queue, args=(worker_to_bot_queue, config.get('bucket_name'))
         ).start()
 
     def _message_handler(self, update, context):
@@ -119,7 +118,7 @@ class VideoDownloaderBot(Bot):
                 self.send_text(update, f'you are not allowed to use admin commands.')
                 logger.warning('admin command detected from non admin user'.format())
         else:
-            # Handle "free-text" / URL text mode
+            # Handle "free-text" / URL text mode.
             temp = inbound_text.replace(" ", "")
             if is_string_an_url(temp):
                 # Check if user input is a valid URL for YT-DLP
