@@ -29,7 +29,7 @@ properties(
                             '''
                             try{
                             def builds = []
-                            def job = jenkins.model.Jenkins.instance.getItemByFullName('dev/WorkerBuildPost')
+                            def job = jenkins.model.Jenkins.instance.getItemByFullName('prod/WorkerBuildResults')
                             job.builds.each {
                                 def build = it
                                 builds.add(build.getBuildVariables()["WORKER_IMAGE_NAME"])
@@ -53,7 +53,7 @@ pipeline {
         }
     }
     environment {
-        APP_ENV = "dev"
+        APP_ENV = "prod"
         BUILD_ENV = "${params.WORKER_IMAGE_NAME}"
     }
     stages {
