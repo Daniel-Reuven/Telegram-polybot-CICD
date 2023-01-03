@@ -27,13 +27,13 @@ pipeline {
                     '''
                 }
             }
+        }
         stage('Trigger Post List') {
             steps {
                 build job: 'BotBuildResults', wait: false, parameters: [
                     string(name: 'BOT_IMAGE_NAME', value: "${REGISTRY_URL}/${IMAGE_NAME}:${IMAGE_TAG}")
                 ]
             }
-        }
         }
     }
 }

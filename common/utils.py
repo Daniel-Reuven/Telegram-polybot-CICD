@@ -147,7 +147,7 @@ def sync_quality_file(s3_bucket_name):
                 #     secret_data = json.load(json_handler)
                 # dev_chat_id = secret_data["dev_chat_id"]
                 # json_handler.close()
-                # telegram_api_send_single_message(dev_chat_id, 'Backend: quality updated successfully.')
+                # telegram_api_send_single_message(dev_chat_id, 'Backend: quality updated successfully')
             logger.info(f'Sync process is running as of {dt_now}, checking for changes every 1 minute.')
         except Exception as e:
             logger.error(e)
