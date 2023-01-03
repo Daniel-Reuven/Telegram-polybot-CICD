@@ -28,8 +28,14 @@ properties(
                         script:
                             '''
                             try{
-                            def build = jenkins.model.Jenkins.instance.getItemByFullName(\'dev/BotBuildPost\').getLastSuccessfulBuild().getBuildVariables()["BOT_IMAGE_NAME"]
-                            return [build]
+                            def builds = []
+                            def job = jenkins.model.Jenkins.instance.getItemByFullName('dev/BotBuildPost')
+                            job.builds.each {
+                                def build = it
+                                builds.add(build.getBuildVariables()["BOT_IMAGE_NAME"])
+                            }
+                            builds.unique();
+                            return builds
                             }
                             catch (Exception e){return [e.getMessage()]}
                             '''
