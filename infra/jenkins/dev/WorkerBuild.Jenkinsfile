@@ -33,6 +33,9 @@ pipeline {
                 build job: 'WorkerDeploy', wait: false, parameters: [
                     string(name: 'WORKER_IMAGE_NAME', value: "${REGISTRY_URL}/${IMAGE_NAME}:${IMAGE_TAG}")
                 ]
+                build job: 'WorkerBuildPost', wait: false, parameters: [
+                    string(name: 'WORKER_IMAGE_NAME', value: "${REGISTRY_URL}/${IMAGE_NAME}:${IMAGE_TAG}")
+                ]
             }
         }
     }
