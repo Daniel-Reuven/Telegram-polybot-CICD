@@ -11,7 +11,7 @@ from common.utils import send_videos_from_bot_queue, is_string_an_url, upload_fi
 class Bot:
     def __init__(self, token):
         # create frontend object to the bot programmer
-        self.updater = Updater(token, use_context=True)
+        self.updater = Updater(token, request_kwargs={'read_timeout': 600, 'connect_timeout': 600}, use_context=True)
         # add _message_handler as main internal msg handler
         self.updater.dispatcher.add_handler(MessageHandler(Filters.text, self._message_handler))
 
