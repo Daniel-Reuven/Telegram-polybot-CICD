@@ -29,7 +29,7 @@ properties(
                             '''
                             try{
                             def builds = []
-                            def job = jenkins.model.Jenkins.instance.getItemByFullName('dev/BotBuildPost')
+                            def job = jenkins.model.Jenkins.instance.getItemByFullName('dev/BotBuildResults')
                             job.builds.each {
                                 def build = it
                                 builds.add(build.getBuildVariables()["BOT_IMAGE_NAME"])

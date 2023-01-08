@@ -30,12 +30,12 @@ pipeline {
                 }
             }
         }
-        stage('Trigger Deploy') {
+        stage('Trigger Post List') {
             steps {
-                build job: 'WorkerDeploy', wait: false, parameters: [
-                    string(name: 'WORKER_IMAGE_NAME', value: "${REGISTRY_URL}/${IMAGE_NAME}:${IMAGE_TAG}")
-                ]
-                build job: 'WorkerBuildPost', wait: false, parameters: [
+//                 build job: 'WorkerDeploy', wait: false, parameters: [
+//                     string(name: 'WORKER_IMAGE_NAME', value: "${REGISTRY_URL}/${IMAGE_NAME}:${IMAGE_TAG}")
+//                 ]
+                build job: 'dev/WorkerBuildResults', wait: false, parameters: [
                     string(name: 'WORKER_IMAGE_NAME', value: "${REGISTRY_URL}/${IMAGE_NAME}:${IMAGE_TAG}")
                 ]
             }
