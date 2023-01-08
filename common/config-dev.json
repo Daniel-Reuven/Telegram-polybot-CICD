@@ -1,0 +1,6 @@
+{
+  "aws_region": "eu-central-1",
+  "bot_to_worker_queue_name": "daniel-reuven-jenkins-ex-worker-queue",
+  "worker_to_bot_queue_name": "daniel-reuven-jenkins-ex-bot-queue",
+  "bucket_name": "daniel-reuven-jenkins-ex-bucket"
+}

@@ -9,12 +9,14 @@ pipeline {
         REGISTRY_URL = "352708296901.dkr.ecr.eu-central-1.amazonaws.com"
         IMAGE_TAG = "0.0.$BUILD_NUMBER"
         IMAGE_NAME = "daniel-reuven-worker-prod"
+        APP_ENV = "prod"
     }
     stages {
         stage('Trigger Build') {
             steps {
                 sh '''
                 aws ecr get-login-password --region eu-central-1 | docker login --username AWS --password-stdin $REGISTRY_URL
+                echo $APP_ENV > env.txt
                 docker build -t $IMAGE_NAME:$IMAGE_TAG . -f services/worker/Dockerfile --label "author=daniel-reuven"
                 docker tag $IMAGE_NAME:$IMAGE_TAG $REGISTRY_URL/$IMAGE_NAME:$IMAGE_TAG
                 docker push $REGISTRY_URL/$IMAGE_NAME:$IMAGE_TAG

@@ -29,7 +29,7 @@ properties(
                             '''
                             try{
                             def builds = []
-                            def job = jenkins.model.Jenkins.instance.getItemByFullName('prod/WorkerBuildResults')
+                            def job = jenkins.model.Jenkins.instance.getItemByFullName('dev/WorkerBuildResults')
                             job.builds.each {
                                 def build = it
                                 builds.add(build.getBuildVariables()["WORKER_IMAGE_NAME"])
@@ -53,7 +53,7 @@ pipeline {
         }
     }
     environment {
-        APP_ENV = "prod"
+        APP_ENV = "dev"
         BUILD_ENV = "${params.WORKER_IMAGE_NAME}"
     }
     stages {
@@ -68,6 +68,9 @@ pipeline {
                     # replace placeholders in YAML k8s files
                     bash common/replaceInFile.sh $K8S_CONFIGS/worker.yaml APP_ENV $APP_ENV
                     bash common/replaceInFile.sh $K8S_CONFIGS/worker.yaml WORKER_IMAGE $BUILD_ENV
+
+                    # authenticate with AWS EKS Cluster
+                    aws eks update-kubeconfig --region eu-central-1 --name dr-project-eks-cluster
 
                     # apply the configurations to k8s cluster
                     kubectl apply --kubeconfig ${KUBECONFIG} -f $K8S_CONFIGS/worker.yaml
