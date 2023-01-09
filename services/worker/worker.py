@@ -62,7 +62,7 @@ def main(quality_file_dt, quality_var):
 if __name__ == '__main__':
     with open('env.txt') as f2:
         env = f2.readline()
-    print(env)
+    logger.info(f'environment is: {env}')
     if env == 'dev':
         with open('common/config-dev.json') as f1:
             config = json.load(f1)
