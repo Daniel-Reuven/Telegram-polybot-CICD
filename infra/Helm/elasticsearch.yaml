@@ -782,10 +782,10 @@ data:
   resources:
     limits:
       cpu: 500m
-      memory: 1024Mi
+      memory: 2048Mi
     requests:
-      cpu: 50m
-      memory: 512Mi
+      cpu: 150m
+      memory: 1024Mi
   ## @param data.heapSize Elasticsearch data node heap size.
   ## Note: The recommended heapSize is half of the container's memory.
   ## If omitted, it will be automatically set.
