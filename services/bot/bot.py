@@ -159,7 +159,7 @@ if __name__ == '__main__':
     with open('env.txt') as f2:
         env = f2.readline()
     logger.info(f'environment is: {env}')
-    if env == 'dev':
+    if env.contains('dev'):
         with open('common/config-dev.json') as f1:
             config = json.load(f1)
     else:
