@@ -73,7 +73,7 @@ pipeline {
                     aws eks update-kubeconfig --region eu-central-1 --name dr-project-eks-cluster
 
                     # apply the configurations to k8s cluster
-                    kubectl apply --kubeconfig ${KUBECONFIG} -f $K8S_CONFIGS/worker.yaml
+                    kubectl apply -f $K8S_CONFIGS/worker.yaml
                     '''
                 }
             }

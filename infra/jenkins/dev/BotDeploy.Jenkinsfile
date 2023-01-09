@@ -29,7 +29,7 @@ properties(
                             '''
                             try{
                             def builds = []
-                            def job = jenkins.model.Jenkins.instance.getItemByFullName('dev/BotBuildPost')
+                            def job = jenkins.model.Jenkins.instance.getItemByFullName('dev/BotBuildResults')
                             job.builds.each {
                                 def build = it
                                 builds.add(build.getBuildVariables()["BOT_IMAGE_NAME"])
@@ -74,7 +74,7 @@ pipeline {
                     aws eks update-kubeconfig --region eu-central-1 --name dr-project-eks-cluster
 
                     # apply the configurations to k8s cluster
-                    kubectl apply --kubeconfig ${KUBECONFIG} -f $K8S_CONFIGS/bot.yaml
+                    kubectl apply -f $K8S_CONFIGS/bot.yaml
                     '''
                 }
             }

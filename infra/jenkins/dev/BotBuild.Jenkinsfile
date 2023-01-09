@@ -30,12 +30,12 @@ pipeline {
                 }
             }
         }
-        stage('Trigger Deploy') {
+        stage('Trigger Post List') {
             steps {
-                build job: 'BotDeploy', wait: false, parameters: [
-                    string(name: 'BOT_IMAGE_NAME', value: "${REGISTRY_URL}/${IMAGE_NAME}:${IMAGE_TAG}")
-                ]
-                build job: 'BotBuildPost', wait: false, parameters: [
+//                 build job: 'dev/BotDeploy', wait: false, parameters: [
+//                     string(name: 'BOT_IMAGE_NAME', value: "${REGISTRY_URL}/${IMAGE_NAME}:${IMAGE_TAG}")
+//                 ]
+                build job: 'dev/BotBuildResults', wait: false, parameters: [
                     string(name: 'BOT_IMAGE_NAME', value: "${REGISTRY_URL}/${IMAGE_NAME}:${IMAGE_TAG}")
                 ]
             }

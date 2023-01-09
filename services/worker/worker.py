@@ -61,13 +61,15 @@ def main(quality_file_dt, quality_var):
 
 if __name__ == '__main__':
     with open('env.txt') as f2:
-        env = f2.read()
+        env = f2.readline().strip('\n')
+    logger.info(f'environment is: {env}')
     if env == 'dev':
         with open('common/config-dev.json') as f1:
             config = json.load(f1)
     else:
         with open('common/config.json') as f1:
             config = json.load(f1)
+    logger.info(f'environment config: {config}')
     f1.close()
     with open('secrets/.telegramToken') as f2:
         _token = f2.read()

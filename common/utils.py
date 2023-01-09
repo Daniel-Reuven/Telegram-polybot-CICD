@@ -11,7 +11,7 @@ from urllib import parse
 from botocore.exceptions import ClientError
 from botocore.config import Config
 from loguru import logger
-from time import sleep, mktime
+from time import sleep
 from datetime import datetime, timedelta
 from validators import ValidationFailure
 
@@ -30,7 +30,7 @@ def download_youtube_video_to_s3(yt_link, s3_bucket_name, quality_var):
                 'already_have_thumbnail': False,
             }],
             'outtmpl': './ytdlAppData/%(id)s.%(ext)s',
-            'verbose': False,
+            'verbose': True,
         }
         with yt_dlp.YoutubeDL(ydl) as ydl:
             # Clean local cache
@@ -129,7 +129,6 @@ def send_videos_from_bot_queue(worker_to_bot_queue, bucket_name):
 
 
 def sync_quality_file(s3_bucket_name, _token):
-    i = 0
     # Start looping with sleep every 15 minutes
     while True:
         try:
@@ -138,7 +137,7 @@ def sync_quality_file(s3_bucket_name, _token):
             utc = pytz.UTC
             dt_file = dt_file.replace(tzinfo=utc)
             dt_now = dt_now.replace(tzinfo=utc)
-            if dt_file >= (dt_now - timedelta(minutes=2)):
+            if dt_file >= (dt_now - timedelta(minutes=1)):
                 logger.info('Updates to quality file detected, attempting to update settings.')
                 download_file2('quality_file.json', s3_bucket_name)
                 logger.info('Successfully updated quality file.')
@@ -309,4 +308,4 @@ def telegram_api_send_single_message(chat_id, text):
         logger.info(f'Attempting to send msg to {chat_id}')
     except requests.exceptions.RequestException as e:
         # Throw an exception if Telegram API fails
-        logger.Error(f'Status: {e}'.format())
+        logger.error(f'Status: {e}'.format())
