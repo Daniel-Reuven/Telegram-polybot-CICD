@@ -165,6 +165,7 @@ if __name__ == '__main__':
     else:
         with open('common/config.json') as f1:
             config = json.load(f1)
+    logger.info(f'environment config: {config}')
     f1.close()
     with open('secrets/.telegramToken') as f2:
         _token = f2.read()
