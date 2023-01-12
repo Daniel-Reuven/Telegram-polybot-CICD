@@ -156,6 +156,7 @@ class VideoDownloaderBot(Bot):
 
 
 if __name__ == '__main__':
+    logger.add(serialize='json')
     with open('env.txt') as f2:
         env = f2.readline().strip('\n')
     logger.info(f'environment is: {env}')
