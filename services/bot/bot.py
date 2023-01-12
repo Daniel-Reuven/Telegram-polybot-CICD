@@ -156,7 +156,8 @@ class VideoDownloaderBot(Bot):
 
 
 if __name__ == '__main__':
-    logger.add("App_Log_{time}.log", serialize='json', rotation="30 days", backtrace=True, enqueue=False, catch=True)
+    # logger only affects file, not output sent to fluentd and pod logs.
+    # logger.add("App_Log_{time}.log", serialize='json', rotation="30 days", backtrace=True, enqueue=False, catch=True)
     with open('env.txt') as f2:
         env = f2.readline().strip('\n')
     logger.info(f'environment is: {env}')
