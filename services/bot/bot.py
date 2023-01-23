@@ -5,7 +5,7 @@ from time import sleep
 from botocore.exceptions import ClientError
 from telegram.ext import Updater, MessageHandler, Filters
 from loguru import logger
-from common.utils import send_videos_from_bot_queue, is_string_an_url, upload_file2, initial_download
+from common.utils import send_videos_from_bot_queue, is_string_an_url, aws_s3_bucket_upload_file2, initial_download
 
 
 class Bot:
@@ -68,56 +68,35 @@ class VideoDownloaderBot(Bot):
             f2.close()
             self.send_text(update, f'Quality: up to {qfile_data["quality"]}')
             logger.info(f'quality check requested'.format())
-        # Handle "/reloadconfig" mode
-        # elif update.message.text.lower() == '/reloadconfig':
-        #     if env == 'dev':
-        #         with open('common/config-dev.json') as f1:
-        #             config = json.load(f1)
-        #     else:
-        #         with open('common/config.json') as f1:
-        #             config = json.load(f1)
-        #     f1.close()
-        #     sqs = boto3.resource('sqs', region_name=config.get('aws_region'))
-        #     bot_to_worker_queue = sqs.get_queue_by_name(QueueName=config.get('bot_to_worker_queue_name'))
-        #     worker_to_bot_queue = sqs.get_queue_by_name(QueueName=config.get('worker_to_bot_queue_name'))
-        #     self.send_text(update, f'Quality: up to {qfile_data["quality"]}')
-        #     logger.info(f'quality check requested'.format())
         # Handle "/setquality" mode
         elif update.message.text.lower().startswith('/setquality'):
             if chat_id == dev_chat_id:
+                logger.info(f'Admin command detected, attempting to comply'.format())
+                self.send_text(update, f'Admin command detected, attempting to comply')
+                local_file = 'quality_file.json'
+                s3_path = 'quality_file.json'
+                with open('quality_file.json') as f2:
+                    qfile_data = json.load(f2)
+                f2.close()
                 if update.message.text.lower() == '/setquality qhd':
-                    logger.info(f'Admin command detected, attempting to comply'.format())
-                    self.send_text(update, f'Admin command detected, attempting to comply')
-                    with open('quality_file.json') as f2:
-                        qfile_data = json.load(f2)
-                    f2.close()
                     qfile_data["quality"] = 2160
                     try:
                         with open('quality_file.json', 'w') as f2_w:
                             json.dump(qfile_data, f2_w)
                         f2_w.close()
-                        local_file = 'quality_file.json'
-                        s3_path = 'quality_file.json'
-                        upload_file2(config.get('bucket_name'), local_file, s3_path)
+                        aws_s3_bucket_upload_file2(config.get('bucket_name'), local_file, s3_path)
                         logger.info(f'Quality updated, waiting for backend(1-2 minutes).'.format())
                         self.send_text(update, f'Quality updated, waiting for backend(1-2 minutes).')
                     except Exception as e:
                         logger.error(e)
                         self.send_text(update, f'Failed to comply')
                 elif update.message.text.lower() == '/setquality fhd':
-                    logger.info(f'Admin command detected, attempting to comply'.format())
-                    self.send_text(update, f'Admin command detected, attempting to comply')
-                    with open('quality_file.json') as f2:
-                        qfile_data = json.load(f2)
-                    f2.close()
                     qfile_data["quality"] = 1080
                     try:
                         with open('quality_file.json', 'w') as f2_w:
                             json.dump(qfile_data, f2_w)
                         f2_w.close()
-                        local_file = 'quality_file.json'
-                        s3_path = 'quality_file.json'
-                        upload_file2(config.get('bucket_name'), local_file, s3_path)
+                        aws_s3_bucket_upload_file2(config.get('bucket_name'), local_file, s3_path)
                         logger.info(f'Quality updated, waiting for backend(1-2 minutes).'.format())
                         self.send_text(update, f'Quality updated, waiting for backend(1-2 minutes).')
                     except Exception as e:
@@ -132,7 +111,10 @@ class VideoDownloaderBot(Bot):
                 logger.warning('admin command detected from non admin user'.format())
         else:
             # Handle "free-text" / URL text mode.
-            temp = inbound_text.replace(" ", "")
+            temp = inbound_text
+            # Remove double spaces
+            while ' ' in temp:
+                temp = temp.replace(' ', '')
             if is_string_an_url(temp):
                 # Check if user input is a valid URL for YT-DLP
                 self.send_text(update, f'Processing link')
@@ -156,8 +138,6 @@ class VideoDownloaderBot(Bot):
 
 
 if __name__ == '__main__':
-    # logger only affects file, not output sent to fluentd and pod logs.
-    # logger.add("App_Log_{time}.log", serialize='json', rotation="30 days", backtrace=True, enqueue=False, catch=True)
     with open('env.txt') as f2:
         env = f2.readline().strip('\n')
     logger.info(f'environment is: {env}')
