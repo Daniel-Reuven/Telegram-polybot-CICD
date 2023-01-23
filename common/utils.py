@@ -16,13 +16,36 @@ from datetime import datetime, timedelta
 from validators import ValidationFailure
 
 
+class MyLogger:
+    def debug(self, msg):
+        # For compatibility with youtube-dl, both debug and info are passed into debug
+        # You can distinguish them by the prefix '[debug] '
+        if msg.startswith('[debug] '):
+            logger.debug(f'yt-dlp: {msg}'.format())
+            pass
+        else:
+            self.info(msg)
+
+    def info(self, msg):
+        logger.info(f'yt-dlp: {msg}'.format())
+        pass
+
+    def warning(self, msg):
+        logger.warning(f'yt-dlp: {msg}'.format())
+        pass
+
+    def error(self, msg):
+        logger.error(f'yt-dlp: {msg}'.format())
+
+
 def download_youtube_video_to_s3(yt_link, s3_bucket_name, quality_var):
     try:
         # Parameters for youtube_dl use
-        # Max quality set to 1080p, to avoid large file size
         qformat = f'bestvideo[height<={quality_var}][ext=mp4]+bestaudio[ext=m4a]/best[ext=mp4]/best'
         ydl = {
             'noplaylist': 'True',
+            'logger': MyLogger(),
+            'verbose': False,
             'format': qformat,
             'writethumbnail': True,
             'postprocessors': [{
@@ -30,47 +53,57 @@ def download_youtube_video_to_s3(yt_link, s3_bucket_name, quality_var):
                 'already_have_thumbnail': False,
             }],
             'outtmpl': './ytdlAppData/%(id)s.%(ext)s',
-            'verbose': True,
         }
         with yt_dlp.YoutubeDL(ydl) as ydl:
             # Clean local cache
             ydl.cache.remove()
             # Get info about the video via URL
-            video = ydl.extract_info(yt_link, download=False)
+            tempvideo = ydl.extract_info(yt_link, download=False)
+            folder_filename = 'ytdlAppData/' + tempvideo['id'] + '.mp4'
+            filenameclean = tempvideo['title']
             # Manipulate filename to remove unwanted characters
-            folderogfilename = 'ytdlAppData/' + video['id'] + '.mp4'
-            temp_id = video['id']
-            filenameog = f'[{temp_id}]' + video['title'] + '.mp4'
-            filenamefix = re.sub(r'[^a-zA-Z0-9\u0590-\u05FF\u0627-\u064a\u0400-\u04FF \n\.[\]-]', ' ', filenameog)
-            " ".join(filenamefix.split())
-            folderfixfilename = 'ytdlAppData/' + filenamefix
+            s = re.sub(r'[^a-zA-Z0-9\u0590-\u05FF\u0627-\u064a\u0400-\u04FF \n\.-]', '', filenameclean)
+            # Remove double spaces
+            while '  ' in s:
+                s = s.replace("  ", " ")
+            # Remove dots at the end of title.
+            while s.endswith('.'):
+                s = s[:len(s) - 1]
+            if s.endswith(' '):
+                s = s[:len(s) - 1]
+            if not len(s) == 0:
+                final_filename = '[' + tempvideo['id'] + ']' + s + '.mp4'
+            else:
+                final_filename = '[' + tempvideo['id'] + ']' + 'title contains illegal characters' + '.mp4'
+            folder_final_filename = 'ytdlAppData/' + final_filename
             # check aws s3 bucket for the video
-            if not (check_s3_file(filenamefix, s3_bucket_name)):
+            bucket_file_check = aws_s3_bucket_check_is_file(final_filename, s3_bucket_name)
+            if not bucket_file_check:
                 # check locally for the video
-                if not (os.path.isfile(folderfixfilename)):
+                if not (os.path.isfile(folder_final_filename)):
                     # Download the video
                     ydl.extract_info(yt_link, download=True)
                     # Rename the video
-                    logger.info(f"Renaming file {folderogfilename} to {folderfixfilename}")
-                    os.rename(folderogfilename, folderfixfilename)
-                    sleep(1)
-                    # Upload the video to S3 bucket-folder and remove from local storage
-                    logger.info(f"Uploading {folderfixfilename} to S3 bucket {s3_bucket_name}")
-                    upload_file(folderfixfilename, s3_bucket_name)
-                    os.remove(folderfixfilename)
-                    return filenamefix
-                else:
-                    # Upload the video to S3 bucket-folder and remove from local storage
-                    # added but not implemented code to check to compare local file and s3 file sizes and replace if not matching with the local copy.
-                    logger.info(f"Uploading {folderfixfilename} to S3 bucket {s3_bucket_name}")
-                    upload_file(folderfixfilename, s3_bucket_name)
-                    os.remove(folderfixfilename)
-                    return filenamefix
-            else:  # File exists in S3 bucket-folder, no download needed
-                if os.path.isfile(folderfixfilename):
+                    logger.info(f'Renaming file "{folder_filename}" to "{folder_final_filename}"')
+                    os.rename(folder_filename, folder_final_filename)
+                    logger.info(f'Renaming file "{folder_filename}" to "{folder_final_filename}" - Completed')
+                # Upload the video to S3 bucket-folder
+                logger.info(f'Uploading "{folder_final_filename}" to S3 bucket "{s3_bucket_name}"')
+                aws_s3_bucket_upload_media_file(folder_final_filename, s3_bucket_name)
+                logger.info(f'Uploading "{folder_final_filename}" to S3 bucket "{s3_bucket_name}" - Completed')
+                # Remove local file
+                logger.info(f'Deleting local file "{folder_final_filename}"')
+                os.remove(folder_final_filename)
+                logger.info(f'Deleting local file "{folder_final_filename}" - Completed')
+                return final_filename
+            else:  # File exists in S3 bucket-folder, and is available until lifecycle rule applies.
+                logger.info(f'File "{folder_final_filename}" already exists in AWS S3 Bucket "{s3_bucket_name}", returning filename')
+                if os.path.isfile(folder_final_filename):
                     # If the video exists locally, delete
-                    os.remove(folderfixfilename)
-                return filenamefix
+                    logger.info(f'Deleting local file "{folder_final_filename}"')
+                    os.remove(folder_final_filename)
+                    logger.info(f'Deleting local file "{folder_final_filename}" - Completed')
+                return final_filename
     except Exception as e:
         logger.error(e)
         return "Error: Server error has occurred"
@@ -107,7 +140,7 @@ def send_videos_from_bot_queue(worker_to_bot_queue, bucket_name):
                             logger.info(f'msg {msg} has been handled successfully')
                     else:
                         chat_id = msg.message_attributes.get('chat_id').get('StringValue')
-                        video_presigned_url = generate_presigned_url(video_filename, bucket_name, None)
+                        video_presigned_url = aws_s3_bucket_generate_presigned_url(video_filename, bucket_name, None)
                         temp_string = f'<a href = "{video_presigned_url}">{video_filename}</a>'
                         telegram_api_send_single_message(chat_id, f'The following download link will be available for the next few minutes: {temp_string}')
                         # delete message from the queue after it was handled
@@ -133,13 +166,13 @@ def sync_quality_file(s3_bucket_name, _token):
     while True:
         try:
             dt_now = datetime.now()
-            dt_file = check_s3_file_modify_date('quality_file.json', s3_bucket_name)
+            dt_file = aws_s3_bucket_check_file_modify_date('quality_file.json', s3_bucket_name)
             utc = pytz.UTC
             dt_file = dt_file.replace(tzinfo=utc)
             dt_now = dt_now.replace(tzinfo=utc)
             if dt_file >= (dt_now - timedelta(minutes=1)):
                 logger.info('Updates to quality file detected, attempting to update settings.')
-                download_file2('quality_file.json', s3_bucket_name)
+                aws_s3_bucket_download_file2('quality_file.json', s3_bucket_name)
                 logger.info('Successfully updated quality file.')
                 # Possible code for informing dev of successful change
                 with open('/app/secret.json') as json_handler:
@@ -164,21 +197,22 @@ def sync_quality_file(s3_bucket_name, _token):
 def initial_download(s3_bucket_name, filename):
     # Function to initial download sensitive files from s3 bucket to pods
     try:
-        download_file2(filename, s3_bucket_name)
-        logger.info(f'Initial download of {filename}')
+        logger.info(f'Initial download of "{filename}" - Starting')
+        aws_s3_bucket_download_file2(filename, s3_bucket_name)
+        logger.info(f'Initial download of "{filename}" - Completed')
     except botocore.exceptions.ClientError as e:
-        logger.error(f'Initial download of {filename} failed.')
+        logger.error(f'Initial download of "{filename}" failed.')
 
 
 def is_string_an_url(url_string: str) -> bool:
-    # Function to validate if input is a URL
+    # Function to validate if input string is a URL
     result = validators.url(url_string)
     if isinstance(result, ValidationFailure):
         return False
     return result
 
 
-def check_s3_file(key_filename, s3_bucket_name):
+def aws_s3_bucket_check_is_file(key_filename, s3_bucket_name):
     # Function to check if requested file(path) exists in S3 bucket
     s3_prefix = 'ytdlAppData/' + key_filename
     s3 = boto3.resource('s3')
@@ -196,7 +230,7 @@ def check_s3_file(key_filename, s3_bucket_name):
         return True
 
 
-def check_s3_file_modify_date(s3_prefix, s3_bucket_name):
+def aws_s3_bucket_check_file_modify_date(s3_prefix, s3_bucket_name):
     # Function to check if requested file has been modified and return last modified date.
     try:
         datetime_value = boto3.client('s3').head_object(Bucket=s3_bucket_name, Key=s3_prefix)['LastModified']
@@ -208,8 +242,8 @@ def check_s3_file_modify_date(s3_prefix, s3_bucket_name):
         return datetime_value
 
 
-def check_s3_object_filesize(key_filename, s3_bucket_name):
-    # Function to check if requested file(path) exists in S3 bucket
+def aws_s3_bucket_check_object_filesize(key_filename, s3_bucket_name):
+    # Function to check and return requested file(path) size
     s3 = boto3.resource('s3')
     try:
         response = s3.head_object(s3_bucket_name, key_filename)
@@ -222,7 +256,7 @@ def check_s3_object_filesize(key_filename, s3_bucket_name):
         return size
 
 
-def upload_file(key_filename, bucket, object_name=None):
+def aws_s3_bucket_upload_media_file(key_filename, bucket, object_name=None):
     # Function to upload file(path) to S3 bucket
     s3_prefix = key_filename
     tags = {"Cached": "Yes"}
@@ -240,7 +274,7 @@ def upload_file(key_filename, bucket, object_name=None):
     return True
 
 
-def upload_file2(bucket_name, local_file, s3_path):
+def aws_s3_bucket_upload_file2(bucket_name, local_file, s3_path):
     # Function to upload file(path) to S3 bucket
     s3 = boto3.resource('s3')
     try:
@@ -252,7 +286,7 @@ def upload_file2(bucket_name, local_file, s3_path):
     return True
 
 
-def download_file(key_filename, bucket, object_name=None):
+def aws_s3_bucket_download_file(key_filename, bucket, object_name=None):
     # Function to download requested file(path) from S3 bucket
     s3_prefix = 'ytdlAppData/' + key_filename
     s3_client = boto3.client('s3')
@@ -267,7 +301,7 @@ def download_file(key_filename, bucket, object_name=None):
     return True
 
 
-def download_file2(key_filename, bucket):
+def aws_s3_bucket_download_file2(key_filename, bucket):
     # Function to download requested file(path) from S3 bucket
     s3_prefix = key_filename
     s3_client = boto3.client('s3')
@@ -277,7 +311,7 @@ def download_file2(key_filename, bucket):
         logger.error(e)
 
 
-def generate_presigned_url(key_filename, bucket, object_name=None):
+def aws_s3_bucket_generate_presigned_url(key_filename, bucket, object_name=None):
     # Function to generated expiring presigned URL for requested file(path) from S3 bucket
     s3_prefix = 'ytdlAppData/' + key_filename
     s3_client = boto3.client("s3", 'eu-central-1', config=Config(signature_version='s3v4'))

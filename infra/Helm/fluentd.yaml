@@ -347,7 +347,29 @@ fileConfigs:
           _es_index ${record['kubernetes']['namespace_name'] or 'kubernetes'}.${Time.at(time).strftime('%F')}
         </record>
       </filter>
-
+    
+      <filter **dev**>
+        @type parser
+        key_name log
+        reserve_time true
+        <parse>
+          @type regexp
+          expression /^(?<logtime>.*?)\s+\|\s+(?<level>.*?)\s+\|\s+(?<source>.*?)\s+\-\s+(?<msg>.*)$/
+        </parse>
+        reserve_data true
+      </filter>
+    
+      <filter **prod**>
+        @type parser
+        key_name log
+        reserve_time true
+        <parse>
+          @type regexp
+          expression /^(?<logtime>.*?)\s+\|\s+(?<level>.*?)\s+\|\s+(?<source>.*?)\s+\-\s+(?<msg>.*)$/
+        </parse>
+        reserve_data true
+      </filter>
+  
       <match **>
         @id elasticsearch
         @type elasticsearch

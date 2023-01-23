@@ -591,18 +591,19 @@ ruleFiles: {}
 serverFiles:
   ## Alerts configuration
   ## Ref: https://prometheus.io/docs/prometheus/latest/configuration/alerting_rules/
-  alerting_rules.yml: {}
-  # groups:
-  #   - name: Instances
-  #     rules:
-  #       - alert: InstanceDown
-  #         expr: up == 0
-  #         for: 5m
-  #         labels:
-  #           severity: page
-  #         annotations:
-  #           description: '{{ $labels.instance }} of job {{ $labels.job }} has been down for more than 5 minutes.'
-  #           summary: 'Instance {{ $labels.instance }} down'
+  alerting_rules.yml:
+    groups:
+      - name: PodsMonitoring
+        rules:
+          - alert: KubernetesPodNotHealthy
+            expr: sum by (namespace, pod) (kube_pod_status_phase{phase=~"Pending|Unknown|Failed"}) > 0
+            for: 10m
+            labels:
+              severity: critical
+            annotations:
+              summary: Kubernetes Pod not healthy (instance {{ $labels.instance }})
+              description: "Pod has been in a non-ready state for longer than 10 minutes.\n  VALUE = {{ $value }}\n  LABELS = {{ $labels }}"
+
   ## DEPRECATED DEFAULT VALUE, unless explicitly naming your files, please use alerting_rules.yml
   alerts: {}
 
