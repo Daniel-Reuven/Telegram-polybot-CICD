@@ -122,7 +122,7 @@ class VideoDownloaderBot(Bot):
                 try:
                     # Send to AWS SQS queue
                     response = bot_to_worker_queue.send_message(
-                        MessageBody=inbound_text,
+                        MessageBody=temp,
                         MessageAttributes={
                             'chat_id': {'StringValue': chat_id, 'DataType': 'String'}
                         }
