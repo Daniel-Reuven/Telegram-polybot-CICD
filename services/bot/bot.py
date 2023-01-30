@@ -61,7 +61,7 @@ class VideoDownloaderBot(Bot):
                                        f'Send a video link and get back an expiring fast download link for that video.\n'
                                        f'/Start - Display basic hello information.\n'
                                        f'/Quality - Display what video resolution is the bot set to try to download, up to.\n'
-                                       f'/help - Display help information.\n')
+                                       f'/Help - Display help information.\n')
                 logger.info(f'help menu requested'.format())
             # Handle "/quality" mode
             elif update.message.text.lower() == '/quality':
@@ -137,6 +137,8 @@ class VideoDownloaderBot(Bot):
                     # Send a message to customer saying the URL is invalid
                     self.send_text(update, f'Invalid URL, please try again with a valid URL.')
                     logger.error(f'Invalid URL received by chat_id: {chat_id}'.format())
+        else:
+            logger.warning(f'Unknown input/Edit message detected by: {chat_id}'.format())
 
 
 if __name__ == '__main__':
