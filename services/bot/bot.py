@@ -1,7 +1,6 @@
 import json
 import threading
 import boto3
-from time import sleep
 from botocore.exceptions import ClientError
 from telegram.ext import Updater, MessageHandler, Filters
 from loguru import logger
@@ -53,12 +52,10 @@ class VideoDownloaderBot(Bot):
         # Handle "/start" mode
         if update.message.text.lower() == '/start':
             self.send_text(update, f'Hello there, Welcome to Video Downloader.')
-            sleep(1)
             self.send_text(update, f'Send a video link, get back download a link for that video\n/help - Display help information.')
         # Handle "/help" mode
         elif update.message.text.lower() == '/help':
             self.send_text(update, f'Hello there, Welcome to Video Downloader.')
-            sleep(1)
             self.send_text(update, f'Send a video link, get back a download link for that video\n/help - Display help information.')
             logger.info(f'help menu requested'.format())
         # Handle "/quality" mode
