@@ -18,22 +18,23 @@
 
 
 
-### File Modification Requireds:
+### File Modification Required:
 - [ ] Remove "-example" from files under config folder
 - [ ] Modify infra/Helm/* helm files if needed
 - [ ] Configure "secret.json" and update dev_chat_id key's value and then upload to AWS S3 Bucket:
 
-| Key                   | Value                                                      |
-| ---------             |------------------------------------------------------------|
-| dev_chat_id           | (String)Telegram Chat ID of the Admin/Developer of the bot |
-| version               | (String)1.7                                                |
-- [ ] Configure "quality_file.json" and update dev_chat_id key's value and then upload to AWS S3 Bucket:
+| Key                   | Value                                                     |
+| ---------             |-----------------------------------------------------------|
+| dev_chat_id           | (String)Telegram Chat ID of the Admin/Developer of the bot|
+| version               | (String)1.7                                               |
+| dev_donate_link       | (String)Donation Link, can leave empty                    |
+- [ ] Configure "quality_file.json" and update quality key's value and then upload to AWS S3 Bucket:
 
 | Key          | Value                                              |
 | ---------    |----------------------------------------------------|
-| quality      | (String)Video Quality resolution(720/1080/4096)       |
+| quality      | (String)Video Quality resolution(720/1080/4096)    |
 
-- [ ] Modify common/config.json dev_chat_id
+- [ ] Modify common/config.json
 
 | Key                           | Value                                             |
 | ---------                     |---------------------------------------------------|
@@ -42,8 +43,8 @@
 | worker_to_bot_queue_name      | (String)AWS "Outgoing" SQS Queue Name             |
 | bucket_name                   | (String)AWS S3 Bucket Name for data/quality files |
 
-- [ ] Modify jenkins's agent section from all jenkines pipelines files.
-    * these files contains reference to jenkins agent docker image url.
+- [ ] Modify jenkins's agent section from all jenkins pipelines files.
+    * these files contain reference to jenkins agent docker image url.
 
             agent {
                 docker {
@@ -51,7 +52,7 @@
                     args  '--user root -v /var/run/docker.sock:/var/run/docker.sock'
                 }
             }
-- [ ] Modify variable/references in BotBuild jenkines pipelines files:
+- [ ] Modify variable/references in BotBuild jenkins pipelines files:
     * infra/jenkins/dev/BotBuild.Jenkinsfile
     * infra/jenkins/prod/BotBuild.Jenkinsfile
     * infra/jenkins/dev/WorkerBuild.Jenkinsfile
@@ -62,7 +63,7 @@
 | REGISTRY_URL  | (String)AWS ECR to push images to |
 | IMAGE_NAME    | (String)Name of image             |
 | CODE_AUTHOR    | (String)Name of Author for docker images management and cleanup             |
-- [ ] Modify parameters in Workerbuild jenkines pipelines files:
+- [ ] Modify parameters in Workerbuild jenkins pipelines files:
     * infra/jenkins/dev/BotDeploy.Jenkinsfile
     * infra/jenkins/prod/BotDeploy.Jenkinsfile
     * infra/jenkins/dev/WorkerDeploy.Jenkinsfile
