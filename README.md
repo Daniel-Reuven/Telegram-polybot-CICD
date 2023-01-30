@@ -58,12 +58,12 @@
     * infra/jenkins/dev/WorkerBuild.Jenkinsfile
     * infra/jenkins/prod/WorkerBuild.Jenkinsfile
 
-| Variable/reference | Value                        |
-| --------------|-----------------------------------|
-| REGISTRY_URL  | (String)AWS ECR to push images to |
-| IMAGE_NAME    | (String)Name of image             |
-| CODE_AUTHOR    | (String)Name of Author for docker images management and cleanup             |
-- [ ] Modify parameters in Workerbuild jenkins pipelines files:
+| Variable/reference | Value                                                           |
+| --------------|-----------------------------------------------------------------|
+| REGISTRY_URL  | (String)AWS ECR URL to push images to                           |
+| IMAGE_NAME    | (String)Base Name of Docker Image to build                      |
+| CODE_AUTHOR    | (String)Name of Author for Docker Images management and cleanup |
+- [ ] Modify variable/references in Workerbuild jenkins pipelines files:
     * infra/jenkins/dev/BotDeploy.Jenkinsfile
     * infra/jenkins/prod/BotDeploy.Jenkinsfile
     * infra/jenkins/dev/WorkerDeploy.Jenkinsfile
