@@ -43,13 +43,13 @@ class VideoDownloaderBot(Bot):
     def _message_handler(self, update, context):
         # Gather user information for logging purposes
         chat_id = str(update.effective_message.chat_id)
-        inbound_text = update.message.text
         fname = update.message.from_user.first_name
         lname = update.message.from_user.last_name
         username = update.message.from_user.username
         logger.info(f'chat_id: {chat_id}({username}) - {fname} {lname} has started a conversation'.format())
         # Start processing user input( check for update.message to ignore edited inputs.
-        if update.message.text:
+        if update.message:
+            inbound_text = update.message.text
             # Handle "/start" mode
             if update.message.text.lower() == '/start':
                 self.send_text(update, f'Hello there, Welcome to Video Downloader.')
