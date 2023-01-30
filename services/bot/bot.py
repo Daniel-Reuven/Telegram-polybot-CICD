@@ -41,14 +41,15 @@ class VideoDownloaderBot(Bot):
         self.thread1.start()
 
     def _message_handler(self, update, context):
-        # Gather user information for logging purposes
         chat_id = str(update.effective_message.chat_id)
-        fname = update.message.from_user.first_name
-        lname = update.message.from_user.last_name
-        username = update.message.from_user.username
-        logger.info(f'chat_id: {chat_id}({username}) - {fname} {lname} has started a conversation'.format())
-        # Start processing user input( check for update.message to ignore edited inputs.
+        # Start processing user input (check for update.message to ignore edited inputs)
         if update.message:
+            # Gather user information for logging purposes
+
+            fname = update.message.from_user.first_name
+            lname = update.message.from_user.last_name
+            username = update.message.from_user.username
+            logger.info(f'chat_id: {chat_id}({username}) - {fname} {lname} has started a conversation'.format())
             inbound_text = update.message.text
             # Handle "/start" mode
             if update.message.text.lower() == '/start':
