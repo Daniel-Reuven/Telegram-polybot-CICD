@@ -45,7 +45,6 @@ class VideoDownloaderBot(Bot):
         # Start processing user input (check for update.message to ignore edited inputs)
         if update.message:
             # Gather user information for logging purposes
-
             fname = update.message.from_user.first_name
             lname = update.message.from_user.last_name
             username = update.message.from_user.username
@@ -62,8 +61,13 @@ class VideoDownloaderBot(Bot):
                                        f'Send a video link and get back an expiring fast download link for that video.\n'
                                        f'/Start - Display basic hello information.\n'
                                        f'/Quality - Display what video resolution is the bot set to try to download, up to.\n'
+                                       f'/Donate - Display Dev Donate link.\n'
                                        f'/Help - Display help information.\n')
                 logger.info(f'help menu requested'.format())
+            # Handle "/donate" mode
+            elif update.message.text.lower() == '/donate':
+                self.send_text(update, f'Feel free to donate: {donate_link}')
+                logger.info(f'Donate link requested'.format())
             # Handle "/quality" mode
             elif update.message.text.lower() == '/quality':
                 with open('quality_file.json') as f3:
@@ -168,6 +172,7 @@ if __name__ == '__main__':
     with open('secret.json') as json_handler:
         secret_data = json.load(json_handler)
     dev_chat_id = secret_data["dev_chat_id"]
+    donate_link = secret_data["dev_donate_link"]
     json_handler.close()
     my_bot = VideoDownloaderBot(_token)
     my_bot.start()
