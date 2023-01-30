@@ -10,6 +10,7 @@ pipeline {
         IMAGE_TAG = "0.0.$BUILD_NUMBER"
         IMAGE_NAME = "daniel-reuven-worker-dev"
         APP_ENV = "dev"
+        CODE_AUTHOR = "author=daniel-reuven"
     }
     stages {
         stage('Trigger Build') {
@@ -17,7 +18,7 @@ pipeline {
                 sh '''
                 aws ecr get-login-password --region eu-central-1 | docker login --username AWS --password-stdin $REGISTRY_URL
                 echo $APP_ENV > env.txt
-                docker build -t $IMAGE_NAME:$IMAGE_TAG . -f services/worker/Dockerfile --label "author=daniel-reuven"
+                docker build -t $IMAGE_NAME:$IMAGE_TAG . -f services/worker/Dockerfile --label $CODE_AUTHOR
                 docker tag $IMAGE_NAME:$IMAGE_TAG $REGISTRY_URL/$IMAGE_NAME:$IMAGE_TAG
                 docker push $REGISTRY_URL/$IMAGE_NAME:$IMAGE_TAG
                 '''
@@ -25,16 +26,14 @@ pipeline {
             post {
                 always {
                     sh '''
-                       docker images | grep "daniel-reuven-worker-dev" | awk '{print $1 ":" $2}' | xargs docker rmi
+                        echo 'Cleaning up image after pushing to ECR'
+                        docker images | grep $IMAGE_NAME | awk '{print $1 ":" $2}' | xargs docker rmi
                     '''
                 }
             }
         }
         stage('Trigger Post List') {
             steps {
-//                 build job: 'WorkerDeploy', wait: false, parameters: [
-//                     string(name: 'WORKER_IMAGE_NAME', value: "${REGISTRY_URL}/${IMAGE_NAME}:${IMAGE_TAG}")
-//                 ]
                 build job: 'dev/WorkerBuildResults', wait: false, parameters: [
                     string(name: 'WORKER_IMAGE_NAME', value: "${REGISTRY_URL}/${IMAGE_NAME}:${IMAGE_TAG}")
                 ]

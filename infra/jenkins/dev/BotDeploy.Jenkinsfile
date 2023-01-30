@@ -54,6 +54,7 @@ pipeline {
     environment {
         APP_ENV = "dev"
         BUILD_ENV = "${params.BOT_IMAGE_NAME}"
+        EKS_NAME = "dr-project-eks-cluster"
     }
     stages {
         stage('Bot Deploy') {
@@ -71,7 +72,7 @@ pipeline {
                     bash common/replaceInFile.sh $K8S_CONFIGS/bot.yaml TELEGRAM_TOKEN $(echo -n $TELEGRAM_TOKEN | base64)
 
                     # authenticate with AWS EKS Cluster
-                    aws eks update-kubeconfig --region eu-central-1 --name dr-project-eks-cluster
+                    aws eks update-kubeconfig --region eu-central-1 --name $EKS_NAME
 
                     # apply the configurations to k8s cluster
                     kubectl apply -f $K8S_CONFIGS/bot.yaml

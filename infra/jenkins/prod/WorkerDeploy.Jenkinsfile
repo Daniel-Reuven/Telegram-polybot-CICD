@@ -47,7 +47,6 @@ properties(
 pipeline {
     agent {
         docker {
-            // TODO build & push your Jenkins agent image, place the URL here
             image '352708296901.dkr.ecr.eu-central-1.amazonaws.com/daniel-reuven-jenkins-ecr:latest'
             args  '--user root -v /var/run/docker.sock:/var/run/docker.sock'
         }
@@ -55,6 +54,7 @@ pipeline {
     environment {
         APP_ENV = "prod"
         BUILD_ENV = "${params.WORKER_IMAGE_NAME}"
+        EKS_NAME = "dr-project-eks-cluster"
     }
     stages {
         stage('Worker Deploy') {
@@ -70,7 +70,7 @@ pipeline {
                     bash common/replaceInFile.sh $K8S_CONFIGS/worker.yaml WORKER_IMAGE $BUILD_ENV
 
                     # authenticate with AWS EKS Cluster
-                    aws eks update-kubeconfig --region eu-central-1 --name dr-project-eks-cluster
+                    aws eks update-kubeconfig --region eu-central-1 --name $EKS_NAME
 
                     # apply the configurations to k8s cluster
                     kubectl apply -f $K8S_CONFIGS/worker.yaml
