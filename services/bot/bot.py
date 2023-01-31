@@ -172,7 +172,10 @@ if __name__ == '__main__':
     with open('secret.json') as json_handler:
         secret_data = json.load(json_handler)
     dev_chat_id = secret_data["dev_chat_id"]
-    donate_link = secret_data["dev_donate_link"]
+    if not len(secret_data["dev_donate_link"]) == 0:
+        donate_link = secret_data["dev_donate_link"]
+    else:
+        donate_link = 'Not configured'
     json_handler.close()
     my_bot = VideoDownloaderBot(_token)
     my_bot.start()
