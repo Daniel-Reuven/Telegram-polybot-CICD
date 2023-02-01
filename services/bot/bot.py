@@ -68,6 +68,10 @@ class VideoDownloaderBot(Bot):
             elif update.message.text.lower() == '/donate':
                 self.send_text(update, f'Feel free to donate: {donate_link}')
                 logger.info(f'Donate link requested'.format())
+            # Handle "/hello" mode
+            elif update.message.text.lower() == '/hello':
+                self.send_text(update, f'Hello back')
+                logger.info(f'Hello requested'.format())
             # Handle "/quality" mode
             elif update.message.text.lower() == '/quality':
                 with open('quality_file.json') as f3:
