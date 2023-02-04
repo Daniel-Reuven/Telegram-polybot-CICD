@@ -205,9 +205,9 @@ def initial_download(s3_bucket_name, filename):
 
 
 def is_string_an_url(url_string: str) -> bool:
-    # Function to validate if input string is a URL
+    # Function to validate if input string is a URL or if contains playlist
     result = validators.url(url_string)
-    if isinstance(result, ValidationFailure):
+    if isinstance(result, ValidationFailure) or '/playlist?list=' in url_string:
         return False
     return result
 
